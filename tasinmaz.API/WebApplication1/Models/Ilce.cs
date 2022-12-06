@@ -1,17 +1,15 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace tasinmaz.API.Models
 {
+    [Table("Ilceler")]
     public class Ilce
     {
-        public Ilce()
-        {
-            Mahalleler = new List<Mahalle>();
-        }
-
+        [Key]
         public int IlceId { get; set; }
         public string IlceAdi { get; set; }
-        public Il Il { get; set; }
-        public List<Mahalle> Mahalleler { get; set; }
-    }
+        [ForeignKey("IlId")]
+        public Il Il { get; set; } }
 }
