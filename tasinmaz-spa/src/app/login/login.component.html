@@ -1,0 +1,22 @@
+<body>
+  <div class="text-center grid col-md-4 offset-4">
+    <div class="mb-4 row">
+      <img class="mb-4" src="https://odakgis.com.tr/wp-content/uploads/2019/10/cropped-odakgislogo-0-1.png" alt="OdakGIS" />
+      <h1 class="h3 mb-3 font-weight-normal">Yönetim Portalı</h1>
+    </div>
+    <div class="mb-4 row">
+      <form class="form-signin w-100 m-auto" #loginForm="ngForm" (ngSubmit)="login()">
+        <div class="form-floating">
+          <input type="email" class="form-control" id="email" name="email" [(ngModel)]="loginKullanici.email" placeholder="E-Mail" autofocus required />
+          <label for="email">E-Mail</label>
+        </div>
+        <div class="form-floating">
+          <input type="password" id="password" name="password" [(ngModel)]="loginKullanici.password" class="form-control" placeholder="Şifre" required />
+          <label for="inputPassword">Şifre</label>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" [disabled]="loginForm.invalid" type="submit">Giriş Yap</button>
+        <p class="mt-5 mb-3 text-muted text-center">&copy; 2022-2023</p>
+      </form>
+    </div>
+  </div>
+</body>

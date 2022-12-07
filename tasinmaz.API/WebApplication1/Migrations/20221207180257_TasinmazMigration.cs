@@ -12,20 +12,20 @@ namespace tasinmaz.API.Migrations
                 name: "Iller",
                 columns: table => new
                 {
-                    IlId = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    IlAdi = table.Column<string>(type: "text", nullable: true)
+                    Adi = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Iller", x => x.IlId);
+                    table.PrimaryKey("PK_Iller", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Kullanicilar",
                 columns: table => new
                 {
-                    KullaniciId = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Ad = table.Column<string>(type: "text", nullable: true),
                     Soyad = table.Column<string>(type: "text", nullable: true),
@@ -36,118 +36,90 @@ namespace tasinmaz.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Kullanicilar", x => x.KullaniciId);
+                    table.PrimaryKey("PK_Kullanicilar", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Ilceler",
                 columns: table => new
                 {
-                    IlceId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    IlceAdi = table.Column<string>(type: "text", nullable: true),
-                    IlId = table.Column<int>(type: "integer", nullable: true)
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Adi = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Ilceler", x => x.IlceId);
+                    table.PrimaryKey("PK_Ilceler", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Ilceler_Iller_IlId",
-                        column: x => x.IlId,
+                        name: "FK_Ilceler_Iller_Id",
+                        column: x => x.Id,
                         principalTable: "Iller",
-                        principalColumn: "IlId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "LogKayitlari",
                 columns: table => new
                 {
-                    LogId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<int>(type: "integer", nullable: false),
                     KullaniciIp = table.Column<string>(type: "text", nullable: true),
                     Tarih = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Durum = table.Column<string>(type: "text", nullable: true),
                     IslemTipi = table.Column<string>(type: "text", nullable: true),
-                    Aciklama = table.Column<string>(type: "text", nullable: true),
-                    KullaniciId = table.Column<int>(type: "integer", nullable: true)
+                    Aciklama = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LogKayitlari", x => x.LogId);
+                    table.PrimaryKey("PK_LogKayitlari", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_LogKayitlari_Kullanicilar_KullaniciId",
-                        column: x => x.KullaniciId,
+                        name: "FK_LogKayitlari_Kullanicilar_Id",
+                        column: x => x.Id,
                         principalTable: "Kullanicilar",
-                        principalColumn: "KullaniciId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Tasinmazlar",
                 columns: table => new
                 {
-                    TasinmazId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<int>(type: "integer", nullable: false),
                     IlAdi = table.Column<string>(type: "text", nullable: true),
                     IlceAdi = table.Column<string>(type: "text", nullable: true),
                     MahalleAdi = table.Column<string>(type: "text", nullable: true),
                     Ada = table.Column<string>(type: "text", nullable: true),
                     Parsel = table.Column<string>(type: "text", nullable: true),
                     Nitelik = table.Column<string>(type: "text", nullable: true),
-                    KoordinatBilgileri = table.Column<string>(type: "text", nullable: true),
-                    KullaniciId = table.Column<int>(type: "integer", nullable: true)
+                    KoordinatBilgileri = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tasinmazlar", x => x.TasinmazId);
+                    table.PrimaryKey("PK_Tasinmazlar", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Tasinmazlar_Kullanicilar_KullaniciId",
-                        column: x => x.KullaniciId,
+                        name: "FK_Tasinmazlar_Kullanicilar_Id",
+                        column: x => x.Id,
                         principalTable: "Kullanicilar",
-                        principalColumn: "KullaniciId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Mahalleler",
                 columns: table => new
                 {
-                    MahalleId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    MahalleAdi = table.Column<string>(type: "text", nullable: true),
-                    IlceId = table.Column<int>(type: "integer", nullable: true)
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Adi = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Mahalleler", x => x.MahalleId);
+                    table.PrimaryKey("PK_Mahalleler", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Mahalleler_Ilceler_IlceId",
-                        column: x => x.IlceId,
+                        name: "FK_Mahalleler_Ilceler_Id",
+                        column: x => x.Id,
                         principalTable: "Ilceler",
-                        principalColumn: "IlceId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Ilceler_IlId",
-                table: "Ilceler",
-                column: "IlId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_LogKayitlari_KullaniciId",
-                table: "LogKayitlari",
-                column: "KullaniciId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Mahalleler_IlceId",
-                table: "Mahalleler",
-                column: "IlceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tasinmazlar_KullaniciId",
-                table: "Tasinmazlar",
-                column: "KullaniciId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

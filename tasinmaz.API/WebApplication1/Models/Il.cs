@@ -8,7 +8,7 @@ namespace tasinmaz.API.Models
     public class Il
     {
         [Key]
-        public int IlId { get; set; }
-        public string IlAdi { get; set; }
+        public int Id { get; set; }
+        public string Adi { get; set; }
     }
 }

@@ -21,42 +21,35 @@ namespace tasinmaz.API.Migrations
 
             modelBuilder.Entity("tasinmaz.API.Models.Il", b =>
                 {
-                    b.Property<int>("IlId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<string>("IlAdi")
+                    b.Property<string>("Adi")
                         .HasColumnType("text");
 
-                    b.HasKey("IlId");
+                    b.HasKey("Id");
 
                     b.ToTable("Iller");
                 });
 
             modelBuilder.Entity("tasinmaz.API.Models.Ilce", b =>
                 {
-                    b.Property<int>("IlceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<int?>("IlId")
+                    b.Property<int>("Id")
                         .HasColumnType("integer");
 
-                    b.Property<string>("IlceAdi")
+                    b.Property<string>("Adi")
                         .HasColumnType("text");
 
-                    b.HasKey("IlceId");
-
-                    b.HasIndex("IlId");
+                    b.HasKey("Id");
 
                     b.ToTable("Ilceler");
                 });
 
             modelBuilder.Entity("tasinmaz.API.Models.Kullanici", b =>
                 {
-                    b.Property<int>("KullaniciId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
@@ -79,17 +72,15 @@ namespace tasinmaz.API.Migrations
                     b.Property<string>("Soyad")
                         .HasColumnType("text");
 
-                    b.HasKey("KullaniciId");
+                    b.HasKey("Id");
 
                     b.ToTable("Kullanicilar");
                 });
 
             modelBuilder.Entity("tasinmaz.API.Models.LogKaydi", b =>
                 {
-                    b.Property<int>("LogId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Aciklama")
                         .HasColumnType("text");
@@ -100,48 +91,34 @@ namespace tasinmaz.API.Migrations
                     b.Property<string>("IslemTipi")
                         .HasColumnType("text");
 
-                    b.Property<int?>("KullaniciId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("KullaniciIp")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("Tarih")
                         .HasColumnType("timestamp without time zone");
 
-                    b.HasKey("LogId");
-
-                    b.HasIndex("KullaniciId");
+                    b.HasKey("Id");
 
                     b.ToTable("LogKayitlari");
                 });
 
             modelBuilder.Entity("tasinmaz.API.Models.Mahalle", b =>
                 {
-                    b.Property<int>("MahalleId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<int?>("IlceId")
+                    b.Property<int>("Id")
                         .HasColumnType("integer");
 
-                    b.Property<string>("MahalleAdi")
+                    b.Property<string>("Adi")
                         .HasColumnType("text");
 
-                    b.HasKey("MahalleId");
-
-                    b.HasIndex("IlceId");
+                    b.HasKey("Id");
 
                     b.ToTable("Mahalleler");
                 });
 
             modelBuilder.Entity("tasinmaz.API.Models.Tasinmaz", b =>
                 {
-                    b.Property<int>("TasinmazId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Ada")
                         .HasColumnType("text");
@@ -155,9 +132,6 @@ namespace tasinmaz.API.Migrations
                     b.Property<string>("KoordinatBilgileri")
                         .HasColumnType("text");
 
-                    b.Property<int?>("KullaniciId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("MahalleAdi")
                         .HasColumnType("text");
 
@@ -167,9 +141,7 @@ namespace tasinmaz.API.Migrations
                     b.Property<string>("Parsel")
                         .HasColumnType("text");
 
-                    b.HasKey("TasinmazId");
-
-                    b.HasIndex("KullaniciId");
+                    b.HasKey("Id");
 
                     b.ToTable("Tasinmazlar");
                 });
@@ -178,7 +150,9 @@ namespace tasinmaz.API.Migrations
                 {
                     b.HasOne("tasinmaz.API.Models.Il", "Il")
                         .WithMany()
-                        .HasForeignKey("IlId");
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Il");
                 });
@@ -187,7 +161,9 @@ namespace tasinmaz.API.Migrations
                 {
                     b.HasOne("tasinmaz.API.Models.Kullanici", "Kullanici")
                         .WithMany()
-                        .HasForeignKey("KullaniciId");
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Kullanici");
                 });
@@ -196,7 +172,9 @@ namespace tasinmaz.API.Migrations
                 {
                     b.HasOne("tasinmaz.API.Models.Ilce", "Ilce")
                         .WithMany()
-                        .HasForeignKey("IlceId");
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Ilce");
                 });
@@ -205,7 +183,9 @@ namespace tasinmaz.API.Migrations
                 {
                     b.HasOne("tasinmaz.API.Models.Kullanici", "Kullanici")
                         .WithMany()
-                        .HasForeignKey("KullaniciId");
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Kullanici");
                 });

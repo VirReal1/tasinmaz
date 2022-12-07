@@ -1,17 +1,25 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using tasinmaz.API.Models;
 
 namespace tasinmaz.API.Data
 {
-    public class AuthRepository : IAuthRepository
+    public class UserRepository : IUserRepository
     {
         private DataContext _context;
 
-        public AuthRepository(DataContext context)
+        public UserRepository(DataContext context)
         {
             _context = context;
+        }
+
+        public List<Kullanici> GetUsers()
+        {
+            var users = _context.Kullanicilar.ToList();
+            return users;
         }
         public async Task<Kullanici> Login(string email, string password)
         {
@@ -74,6 +82,16 @@ namespace tasinmaz.API.Data
             }
 
             return false;
+        }
+
+        public Task<Kullanici> Remove(int kullaniciId)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<Kullanici> Edit(Kullanici kullanici)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

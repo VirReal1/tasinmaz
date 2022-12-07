@@ -7,9 +7,9 @@ namespace tasinmaz.API.Models
     public class Mahalle
     {
         [Key]
-        public int MahalleId { get; set; }
-        public string MahalleAdi { get; set; }
-        [ForeignKey("IlceId")]
+        public int Id { get; set; }
+        public string Adi { get; set; }
+        [ForeignKey("Id")]
         public Ilce Ilce { get; set; }
     }
 }

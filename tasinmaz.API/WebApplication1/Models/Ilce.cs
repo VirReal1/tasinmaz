@@ -8,9 +8,9 @@ namespace tasinmaz.API.Models
     public class Ilce
     {
         [Key]
-        public int IlceId { get; set; }
-        public string IlceAdi { get; set; }
-        [ForeignKey("IlId")]
+        public int Id { get; set; }
+        public string Adi { get; set; }
+        [ForeignKey("Id")]
         public Il Il { get; set; }
     }
 }

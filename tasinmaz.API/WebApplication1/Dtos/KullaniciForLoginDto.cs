@@ -1,4 +1,6 @@
-﻿namespace tasinmaz.API.Dtos
+﻿using System;
+
+namespace tasinmaz.API.Dtos
 {
     public class KullaniciForLoginDto
     {

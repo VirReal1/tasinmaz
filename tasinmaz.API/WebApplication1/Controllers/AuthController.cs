@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -17,19 +20,27 @@ namespace tasinmaz.API.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        IAuthRepository _authRepository;
+        IUserRepository _userRepository;
         IConfiguration _configuration;
+        IMapper _mapper;
 
-        public AuthController(IAuthRepository authRepository, IConfiguration configuration)
+        public AuthController(IUserRepository userRepository, IConfiguration configuration, IMapper mapper)
         {
-            _authRepository = authRepository;
+            _userRepository = userRepository;
             _configuration = configuration;
+            _mapper = mapper;
+        }
+
+        public ActionResult GetUsers() //WILL BE DELETED
+        {
+            var users = _userRepository.GetUsers();
+            return Ok(users);
         }
 
         [HttpPost("register")]
         public async Task<ActionResult> Register([FromBody] KullaniciForRegisterDto kullaniciForRegisterDto)
         {
-            if (await _authRepository.UserExists(kullaniciForRegisterDto.Email))
+            if (await _userRepository.UserExists(kullaniciForRegisterDto.Email))
             {
                 ModelState.AddModelError("Email", "Email already exists");
             }
@@ -41,17 +52,21 @@ namespace tasinmaz.API.Controllers
 
             var kullaniciToCreate = new Kullanici()
             {
-                Email = kullaniciForRegisterDto.Email
+                Email = kullaniciForRegisterDto.Email,
+                Ad = kullaniciForRegisterDto.Ad,
+                Soyad = kullaniciForRegisterDto.Soyad,
+                AdminMi = kullaniciForRegisterDto.AdminMi
             };
 
-            var createdKullanici = await _authRepository.Register(kullaniciToCreate, kullaniciForRegisterDto.Password);
-            return StatusCode(201);
+            var createdKullanici = await _userRepository.Register(kullaniciToCreate, kullaniciForRegisterDto.Password);
+            return StatusCode(201, createdKullanici);
         }
 
         [HttpPost("login")]
         public async Task<ActionResult> Login([FromBody] KullaniciForLoginDto kullaniciForLoginDto)
         {
-            var kullanici = await _authRepository.Login(kullaniciForLoginDto.Email, kullaniciForLoginDto.Password);
+            var kullanici = await _userRepository.Login(kullaniciForLoginDto.Email, kullaniciForLoginDto.Password);
+
             if (kullanici == null)
             {
                 return Unauthorized();
@@ -64,7 +79,7 @@ namespace tasinmaz.API.Controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, kullanici.KullaniciId.ToString()),
+                    new Claim(ClaimTypes.NameIdentifier, kullanici.Id.ToString()),
                     new Claim(ClaimTypes.Email, kullanici.Email)
                 }),
                 Expires = DateTime.Now.AddDays(1),
@@ -73,8 +88,7 @@ namespace tasinmaz.API.Controllers
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
-
-            return Ok(tokenString);
+            return Ok(new { tokenString, kullanici.AdminMi });
         }
     }
 }

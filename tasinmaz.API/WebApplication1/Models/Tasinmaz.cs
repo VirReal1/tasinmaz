@@ -7,7 +7,7 @@ namespace tasinmaz.API.Models
     public class Tasinmaz
     {
         [Key]
-        public int TasinmazId { get; set; }
+        public int Id { get; set; }
         public string IlAdi { get; set; }
         public string IlceAdi { get; set; }
         public string MahalleAdi { get; set; }
@@ -15,7 +15,7 @@ namespace tasinmaz.API.Models
         public string Parsel { get; set; }
         public string Nitelik { get; set; }
         public string KoordinatBilgileri { get; set; }
-        [ForeignKey("KullaniciId")]
+        [ForeignKey("Id")]
         public Kullanici Kullanici { get; set; }
     }
 }

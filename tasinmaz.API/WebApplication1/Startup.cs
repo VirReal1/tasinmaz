@@ -13,9 +13,11 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using tasinmaz.API.Data;
+using tasinmaz.API.Models;
 
 namespace tasinmaz.API
 {
@@ -36,14 +38,21 @@ namespace tasinmaz.API
             services.AddControllers();
             services.AddDbContext<DataContext>(x => x.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
             services.AddAutoMapper();
-            services.AddCors();
+            services.AddCors(opt =>
+            {
+                opt.AddDefaultPolicy(builder =>
+                {
+                    builder.AllowAnyOrigin();
+                });
+            });
+            services.AddScoped<IUserRepository, UserRepository>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
             {
                 opt.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = true,
+                    ValidateIssuer = false,
                     ValidateActor = false
                 };
             });
@@ -57,12 +66,10 @@ namespace tasinmaz.API
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
