@@ -11,5 +11,6 @@ namespace tasinmaz.API.Models
         public int IlceId { get; set; }
         public string IlceAdi { get; set; }
         [ForeignKey("IlId")]
-        public Il Il { get; set; } }
+        public Il Il { get; set; }
+    }
 }

@@ -61,6 +61,12 @@ namespace tasinmaz.API.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+                    b.Property<string>("Ad")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("AdminMi")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Email")
                         .HasColumnType("text");
 
@@ -69,6 +75,9 @@ namespace tasinmaz.API.Migrations
 
                     b.Property<byte[]>("PasswordSalt")
                         .HasColumnType("bytea");
+
+                    b.Property<string>("Soyad")
+                        .HasColumnType("text");
 
                     b.HasKey("KullaniciId");
 
