@@ -115,7 +115,7 @@ namespace tasinmaz.API.Migrations
                     b.ToTable("Mahalleler");
                 });
 
-            modelBuilder.Entity("tasinmaz.API.Models.Tasinmaz", b =>
+            modelBuilder.Entity("tasinmaz.API.Models.T", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -179,7 +179,7 @@ namespace tasinmaz.API.Migrations
                     b.Navigation("Ilce");
                 });
 
-            modelBuilder.Entity("tasinmaz.API.Models.Tasinmaz", b =>
+            modelBuilder.Entity("tasinmaz.API.Models.T", b =>
                 {
                     b.HasOne("tasinmaz.API.Models.Kullanici", "Kullanici")
                         .WithMany()

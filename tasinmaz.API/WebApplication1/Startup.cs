@@ -17,7 +17,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using tasinmaz.API.Data;
+using tasinmaz.API.Dtos.Tasinmaz;
 using tasinmaz.API.Models;
+using tasinmaz.API.Services.Abstract;
+using tasinmaz.API.Services.Concrete;
+using TasinmazDto = tasinmaz.API.Dtos.Tasinmaz.TasinmazDto;
 
 namespace tasinmaz.API
 {
@@ -46,6 +50,8 @@ namespace tasinmaz.API
                 });
             });
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IGenericRepository<TasinmazDto>, TasinmazRepository<TasinmazDto>>();
+            services.AddScoped<ITasinmazService, TasinmazService>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
             {
                 opt.TokenValidationParameters = new TokenValidationParameters

@@ -1,7 +1,10 @@
 ﻿using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using tasinmaz.API.Dtos.Tasinmaz;
 using tasinmaz.API.Models;
+using tasinmaz.API.Services.Abstract;
 
 namespace tasinmaz.API.Controllers
 {
@@ -9,15 +12,23 @@ namespace tasinmaz.API.Controllers
     [ApiController]
     public class TasinmazlarController : ControllerBase
     {
-        public ActionResult GetTasinmazlar()
+        ITasinmazService _tasinmazService;
+        public TasinmazlarController(ITasinmazService tasinmazService)
         {
-            return Ok(201);
+            _tasinmazService = tasinmazService;
+        }
+        [HttpGet]
+        public async Task<ActionResult> GetTasinmazlar(TasinmazDto tasinmazDto)
+        {
+            var tasinmazlar = await _tasinmazService.GetTasinmazlarAsync(tasinmazDto);
+
+            return Ok(tasinmazlar);
         }
 
-        [HttpPost("add")]
-        public ActionResult Add([FromBody] Tasinmaz tasinmaz)
+        [HttpPost]
+        public ActionResult Add([FromBody] TasinmazDto tasinmazDto)
         {
-            return Ok(tasinmaz);
+            return Ok(tasinmazDto);
         }
     }
 }

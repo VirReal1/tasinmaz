@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using tasinmaz.API.Entities.Concrete;
 using tasinmaz.API.Models;
 
 namespace tasinmaz.API.Data
@@ -15,6 +16,6 @@ namespace tasinmaz.API.Data
         public DbSet<Il> Iller { get; set; }
         public DbSet<Ilce> Ilceler { get; set; }
         public DbSet<Mahalle> Mahalleler { get; set; }
-        public DbSet<LogKaydi> LogKayitlari { get; set; }
+        public DbSet<LogKaydi<Tasinmaz>> LogKayitlari { get; set; } //!!!!!!!!!!!!!!!
     }
 }
