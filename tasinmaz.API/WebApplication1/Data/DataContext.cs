@@ -16,6 +16,6 @@ namespace tasinmaz.API.Data
         public DbSet<Il> Iller { get; set; }
         public DbSet<Ilce> Ilceler { get; set; }
         public DbSet<Mahalle> Mahalleler { get; set; }
-        public DbSet<LogKaydi<Tasinmaz>> LogKayitlari { get; set; } //!!!!!!!!!!!!!!!
+        public DbSet<Log> Loglar { get; set; }
     }
 }

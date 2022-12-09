@@ -1,19 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+using tasinmaz.API.Models;
 
-namespace tasinmaz.API.Entities.Concrete
+namespace tasinmaz.API.Dtos.Log
 {
-    public class LogKaydi<T>
+    public class LogDto
     {
-        [Key]
         public int Id { get; set; }
         public string KullaniciIp { get; set; } = null;
         public DateTime Tarih { get; set; }
         public string Durum { get; set; } = null;
         public string Islem { get; set; } = null;
         public string Aciklama { get; set; } = null;
-        public T Veri { get; set; }
-        public List<string> HataMesajlari { get; set; } = null;
+        public int KullaniciId { get; set; }
     }
 }

@@ -42,6 +42,7 @@ namespace tasinmaz.API
             services.AddControllers();
             services.AddDbContext<DataContext>(x => x.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
             services.AddAutoMapper();
+            services.AddHttpContextAccessor();
             services.AddCors(opt =>
             {
                 opt.AddDefaultPolicy(builder =>
@@ -50,8 +51,9 @@ namespace tasinmaz.API
                 });
             });
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IGenericRepository<TasinmazDto>, TasinmazRepository<TasinmazDto>>();
+            services.AddScoped<ITasinmazRepository, TasinmazRepository>();
             services.AddScoped<ITasinmazService, TasinmazService>();
+            services.AddScoped<ILogService, LogService>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
             {
                 opt.TokenValidationParameters = new TokenValidationParameters

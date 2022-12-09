@@ -2,16 +2,17 @@
 using System.Threading.Tasks;
 using tasinmaz.API.Dtos.Tasinmaz;
 using tasinmaz.API.Entities.Concrete;
-using tasinmaz.API.Models;
+using tasinmaz.API.ServiceResponder;
 
 namespace tasinmaz.API.Services.Abstract
 {
     public interface ITasinmazService
     {
-        Task<LogKaydi<List<TasinmazDto>>> GetTasinmazlarAsync(TasinmazDto tasinmazDto);
-        Task<LogKaydi<TasinmazDto>> AddTasinmazAsync(TasinmazDto tasinmazDto);
-        Task<LogKaydi<TasinmazDto>> UpdateTasinmazAsync(TasinmazDto tasinmazDto);
-        Task<LogKaydi<TasinmazDto>> DeleteTasinmazAsync(TasinmazDto tasinmazDto);
+        Task<ServiceResponse<List<TasinmazDto>>> GetAllAsync();
+        Task<ServiceResponse<List<TasinmazDto>>> GetTasinmazlarAsync(TasinmazDto tasinmazDto);
+        Task<ServiceResponse<TasinmazDto>> AddTasinmazAsync(TasinmazDto tasinmazDto);
+        Task<ServiceResponse<TasinmazDto>> UpdateTasinmazAsync(TasinmazDto tasinmazDto);
+        Task<ServiceResponse<TasinmazDto>> DeleteTasinmazAsync(TasinmazDto tasinmazDto);
 
 
 
