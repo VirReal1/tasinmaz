@@ -12,7 +12,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using tasinmaz.API.Data;
 using tasinmaz.API.Dtos;
+using tasinmaz.API.Dtos.Tasinmaz;
 using tasinmaz.API.Models;
+using tasinmaz.API.Services.Abstract;
+using tasinmaz.API.Services.Concrete;
 
 namespace tasinmaz.API.Controllers
 {
@@ -20,28 +23,42 @@ namespace tasinmaz.API.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        IUserRepository _userRepository;
+        IUserService _userService;
         IConfiguration _configuration;
 
-        public UsersController(IUserRepository userRepository, IConfiguration configuration)
+        public UsersController(IConfiguration configuration, IUserService userService)
         {
-            _userRepository = userRepository;
             _configuration = configuration;
+            _userService = userService;
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetUsers() //WILL BE DELETED
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<KullaniciForShowDeleteDto>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> GetAll() //WILL BE DELETED
         {
-            var users = await _userRepository.GetUsers();
-            return Ok(users);
+            var allUsers = await _userService.GetAllAsync();
+
+            if (allUsers.Success == false && allUsers.Message == "Error occured.")
+            {
+                ModelState.AddModelError("", $"Something went wrong in service layer when getting users.");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok(allUsers);
         }
 
-        [HttpPost("register")]
-        public async Task<ActionResult> Register([FromBody] KullaniciForAddUpdateDto kullaniciForRegisterDto)
+        [HttpPost("search")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<KullaniciForShowDeleteDto>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> GetBySearch([FromBody] KullaniciForShowDeleteDto kullaniciForShowDeleteDto)
         {
-            if (await _userRepository.UserExists(kullaniciForRegisterDto.Email))
+            if (kullaniciForShowDeleteDto == null)
             {
-                ModelState.AddModelError("Email", "Email already exists");
+                return BadRequest(ModelState);
             }
 
             if (!ModelState.IsValid)
@@ -49,45 +66,163 @@ namespace tasinmaz.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var kullaniciToCreate = new Kullanici()
+            var searchUsers = await _userService.GetUsersAsync(kullaniciForShowDeleteDto);
+            
+            if (searchUsers.Success == false && searchUsers.Message == "No Parameter.")
             {
-                Email = kullaniciForRegisterDto.Email,
-                Ad = kullaniciForRegisterDto.Ad,
-                Soyad = kullaniciForRegisterDto.Soyad,
-                AdminMi = kullaniciForRegisterDto.AdminMi
-            };
+                ModelState.AddModelError("", searchUsers.Message);
+                return StatusCode(404, ModelState);
+            }
 
-            var createdKullanici = await _userRepository.Register(kullaniciToCreate, kullaniciForRegisterDto.Password);
-            return StatusCode(201, createdKullanici);
+            if (searchUsers.Success == false && searchUsers.Message == "Parameters does not match with the database.")
+            {
+                ModelState.AddModelError("", searchUsers.Message);
+                return StatusCode(404, ModelState);
+            }
+
+            if (searchUsers.Success == false && searchUsers.Message == "Error occured.")
+            {
+                ModelState.AddModelError("", $"Something went wrong in service layer when searching users.");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok(searchUsers);
         }
 
         [HttpPost("login")]
         public async Task<ActionResult> Login([FromBody] KullaniciForLoginDto kullaniciForLoginDto)
         {
-            var kullanici = await _userRepository.Login(kullaniciForLoginDto.Email, kullaniciForLoginDto.Password);
+            if (kullaniciForLoginDto == null)
+            {
+                return BadRequest(ModelState);
+            }
 
-            if (kullanici == null)
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var kullaniciToken = await _userService.LoginUserAsync(kullaniciForLoginDto);
+
+            if (kullaniciToken.Success == false && kullaniciToken.Message == "E-Mail or password is wrong")
             {
                 return Unauthorized();
             }
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration.GetSection("AppSettings:Token").Value);
-
-            var tokenDescriptor = new SecurityTokenDescriptor()
+            if (kullaniciToken.Success == false && kullaniciToken.Message == "Error occured.")
             {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, kullanici.Id.ToString()),
-                    new Claim(ClaimTypes.Email, kullanici.Email)
-                }),
-                Expires = DateTime.Now.AddHours(2),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
-            };
+                ModelState.AddModelError("", $"Something went wrong in service layer when logging user {kullaniciForLoginDto}.");
+                return StatusCode(500, ModelState);
+            }
+            //TODO RETURN WRAPPER
+            return Ok(new { kullaniciToken.Data.Token, kullaniciToken.Data.AdminMi });
+        }
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
-            return Ok(new { tokenString, kullanici.AdminMi });
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TasinmazDto))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> Add([FromBody] KullaniciForAddUpdateDto kullaniciForAddUpdateDto)
+        {
+            if (kullaniciForAddUpdateDto == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var createUser = await _userService.AddUserAsync(kullaniciForAddUpdateDto);
+
+            if (createUser.Success == false && createUser.Message == "User exists.")
+            {
+                return Ok(createUser);
+            }
+
+            if (createUser.Success == false && createUser.Message == "Repository error.")
+            {
+                ModelState.AddModelError("", $"Something went wrong in repository layer when adding user {kullaniciForAddUpdateDto}.");
+                return StatusCode(500, ModelState);
+            }
+
+            if (createUser.Success == false && createUser.Message == "Error occured.")
+            {
+                ModelState.AddModelError("", $"Something went wrong in service layer when adding user {kullaniciForAddUpdateDto}.");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok(createUser);
+        }
+
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> Update([FromBody] KullaniciForAddUpdateDto kullaniciForAddUpdateDto)
+        {
+            if (kullaniciForAddUpdateDto == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var updateUser = await _userService.UpdateUserAsync(kullaniciForAddUpdateDto);
+
+            if (updateUser.Success == false && updateUser.Message == "Not found.")
+            {
+                return Ok(updateUser);
+            }
+
+            if (updateUser.Success == false && updateUser.Message == "Repository error.")
+            {
+                ModelState.AddModelError("", $"Something went wrong in repository layer when updating user {kullaniciForAddUpdateDto}.");
+                return StatusCode(500, ModelState);
+            }
+
+            if (updateUser.Success == false && updateUser.Message == "Error occured.")
+            {
+                ModelState.AddModelError("", $"Something went wrong in service layer when updating user {kullaniciForAddUpdateDto}.");
+                return StatusCode(500, ModelState);
+            }
+            return Ok(updateUser);
+        }
+
+        [HttpDelete]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> Delete([FromBody] KullaniciForShowDeleteDto kullaniciForShowDeleteDto)
+        {
+            if (kullaniciForShowDeleteDto == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var removeUser = await _userService.DeleteUserAsync(kullaniciForShowDeleteDto);
+
+            if (removeUser.Success == false && removeUser.Message == "Not found.")
+            {
+                ModelState.AddModelError("", removeUser.Message);
+                return StatusCode(404, ModelState);
+
+            }
+
+            if (removeUser.Success == false && removeUser.Message == "Repository error.")
+            {
+                ModelState.AddModelError("", $"Something went wrong in repository layer when deleting user {kullaniciForShowDeleteDto}.");
+                return StatusCode(500, ModelState);
+            }
+
+            if (removeUser.Success == false && removeUser.Message == "Error occured.")
+            {
+                ModelState.AddModelError("", $"Something went wrong in service layer when deleting user {kullaniciForShowDeleteDto}.");
+                return StatusCode(500, ModelState);
+            }
+            return NoContent();
         }
     }
 }

@@ -26,7 +26,7 @@ namespace tasinmaz.API.Services.Concrete
 
         public async Task<ServiceResponse<List<LogDto>>> GetAllAsync()
         {
-            ServiceResponse<List<LogDto>> _response = new ServiceResponse<List<LogDto>>();
+            ServiceResponse<List<LogDto>> response = new ServiceResponse<List<LogDto>>();
 
             var logAllList = await _logRepository.GetAllAsync();
             var logDtoAllList = new List<LogDto>();
@@ -38,23 +38,23 @@ namespace tasinmaz.API.Services.Concrete
 
             try
             {
-                _response.Message = "Got all Taşınmazlar.";
-                _response.Success = true;
-                _response.Data = logDtoAllList;
+                response.Message = "Got all logs.";
+                response.Success = true;
+                response.Data = logDtoAllList;
             }
             catch (Exception e)
             {
-                _response.Message = "Error occured.";
-                _response.Success = false;
-                _response.Data = logDtoAllList;
-                _response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
+                response.Message = "Error occured.";
+                response.Success = false;
+                response.Data = logDtoAllList;
+                response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
             }
-            return _response;
+            return response;
         }
 
         public async Task<ServiceResponse<List<LogDto>>> GetLoglarAsync(LogDto logDto)
         {
-            ServiceResponse<List<LogDto>> _response = new ServiceResponse<List<LogDto>>();
+            ServiceResponse<List<LogDto>> response = new ServiceResponse<List<LogDto>>();
 
             var logAllList = await _logRepository.GetAllAsync();
             var logDtoAllList = new List<LogDto>();
@@ -76,58 +76,59 @@ namespace tasinmaz.API.Services.Concrete
             {
                 if (logDto == null)
                 {
-                    _response.Message = "No Parameter";
-                    _response.Success = false;
-                    _response.Data = logDtoAllList;
-                    return _response;
+                    response.Message = "No Parameter";
+                    response.Success = false;
+                    response.Data = logDtoAllList;
+                    return response;
                 }
 
                 if (logList == null)
                 {
-                    _response.Message = "Parameters does not match with the database.";
-                    _response.Success = false;
-                    _response.Data = logDtoAllList;
-                    return _response;
+                    response.Message = "Parameters does not match with the database.";
+                    response.Success = false;
+                    response.Data = logDtoAllList;
+                    return response;
                 }
-                _response.Message = "Taşınmazlar searched.";
-                _response.Success = false;
-                _response.Data = _mapper.Map<List<LogDto>>(logList);
+                response.Message = "Logs searched.";
+                response.Success = false;
+                response.Data = _mapper.Map<List<LogDto>>(logList);
             }
             catch (Exception e)
             {
-                _response.Message = "Error occured.";
-                _response.Success = false;
-                _response.Data = logDtoAllList;
-                _response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
+                response.Message = "Error occured.";
+                response.Success = false;
+                response.Data = logDtoAllList;
+                response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
             }
-            return _response;
+            return response;
         }
 
         public async Task<ServiceResponse<LogDto>> AddAsync(Log log)
         {
-            ServiceResponse<LogDto> _response = new ServiceResponse<LogDto>();
+            ServiceResponse<LogDto> response = new ServiceResponse<LogDto>();
             try
             {
+                
                 if (!await _logRepository.AddAsync(log))
                 {
-                    _response.Error = "Repository error.";
-                    _response.Success = false;
-                    _response.Data = null;
-                    return _response;
+                    response.Message = "Repository error.";
+                    response.Success = false;
+                    response.Data = null;
+                    return response;
                 }
-                _response.Success = true;
-                _response.Data = _mapper.Map<LogDto>(log);
-                _response.Message = "Taşınmaz created";
+                response.Success = true;
+                response.Data = _mapper.Map<LogDto>(log);
+                response.Message = "Log created";
             }
             catch (Exception e)
             {
-                _response.Success = false;
-                _response.Data = null;
-                _response.Error = "Error occured.";
-                _response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
+                response.Message = "Error occured.";
+                response.Success = false;
+                response.Data = null;
+                response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
             }
 
-            return _response;
+            return response;
         }
     }
 }

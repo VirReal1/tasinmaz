@@ -1,46 +1,112 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using tasinmaz.API.Dtos;
 using tasinmaz.API.Models;
+using tasinmaz.API.Models.Concrete;
 
 namespace tasinmaz.API.Data
 {
     public class UserRepository : IUserRepository
     {
-        private DataContext _context;
+        DataContext _context;
+        IMapper _mapper;
+        IConfiguration _configuration;
 
-        public UserRepository(DataContext context)
+        public UserRepository(DataContext context, IMapper mapper, IConfiguration configuration)
         {
             _context = context;
+            _mapper = mapper;
+            _configuration = configuration;
+        }
+        public async Task<Kullanici> Get(Expression<Func<Kullanici, bool>> filter)
+        {
+            return await _context.Kullanicilar.FirstOrDefaultAsync(filter);
         }
 
-        public async Task<List<Kullanici>> GetUsers()
+        public async Task<ICollection<Kullanici>> GetAllAsync(Expression<Func<Kullanici, bool>> filter = null)
         {
-            var users = await _context.Kullanicilar.ToListAsync();
-            return users;
+            return filter == null ? await _context.Kullanicilar.ToListAsync() : await _context.Kullanicilar.Where(filter).ToListAsync();
         }
-        public async Task<Kullanici> Get(int kullaniciId)
+        public async Task<bool> Exists(Expression<Func<Kullanici, bool>> filter)
         {
-            var user = await _context.Kullanicilar.FirstOrDefaultAsync(x => x.Id == kullaniciId);
-            return user;
+            return await _context.Kullanicilar.AnyAsync(filter);
         }
 
-        public async Task<Kullanici> Login(string email, string password)
+        public async Task<KullaniciToken> LoginUserAsync(KullaniciForLoginDto kullaniciForLoginDto)
         {
-            var kullanici = await _context.Kullanicilar.FirstOrDefaultAsync(x => x.Email == email);
+            var kullanici = await _context.Kullanicilar.FirstOrDefaultAsync(x => x.Email == kullaniciForLoginDto.Email);
+            
             if (kullanici == null)
             {
                 return null;
             }
 
-            if (!VerifyPasswordHash(password, kullanici.PasswordHash, kullanici.PasswordSalt))
+            if (!VerifyPasswordHash(kullaniciForLoginDto.Password, kullanici.PasswordHash, kullanici.PasswordSalt))
             {
                 return null;
             }
 
-            return kullanici;
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_configuration.GetSection("AppSettings:Token").Value);
+
+            var tokenDescriptor = new SecurityTokenDescriptor()
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, kullanici.Id.ToString()),
+                    new Claim(ClaimTypes.Email, kullanici.Email)
+                }),
+                Expires = DateTime.Now.AddHours(2),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
+            KullaniciToken kullaniciToken = new KullaniciToken
+            {
+                Token = tokenString, AdminMi = kullanici.AdminMi, Id = kullanici.Id
+            };
+
+            return kullaniciToken;
+        }
+
+        public async Task<bool> AddAsync(KullaniciForAddUpdateDto kullaniciForAddUpdateDto)
+        {
+            byte[] passwordHash, passwordSalt;
+            CreatePasswordHash(kullaniciForAddUpdateDto.Password, out passwordHash, out passwordSalt);
+            kullaniciForAddUpdateDto.PasswordHash = passwordHash;
+            kullaniciForAddUpdateDto.PasswordSalt = passwordSalt;
+            var addedUser = await _context.Kullanicilar.AddAsync(_mapper.Map<Kullanici>(kullaniciForAddUpdateDto));
+            addedUser.State = EntityState.Added;
+            return await SaveChanges();
+        }
+        public async Task<bool> UpdateAsync(KullaniciForAddUpdateDto kullaniciForAddUpdateDto)
+        {
+            byte[] passwordHash, passwordSalt;
+            CreatePasswordHash(kullaniciForAddUpdateDto.Password, out passwordHash, out passwordSalt);
+            kullaniciForAddUpdateDto.PasswordHash = passwordHash;
+            kullaniciForAddUpdateDto.PasswordSalt = passwordSalt;
+            _context.ChangeTracker.Clear();
+            var updatedUser = _context.Kullanicilar.Update(_mapper.Map<Kullanici>(kullaniciForAddUpdateDto));
+            updatedUser.State = EntityState.Modified;
+            return await SaveChanges();
+        }
+
+        public async Task<bool> DeleteAsync(Kullanici kullanici)
+        {
+            var deletedUser = _context.Kullanicilar.Remove(kullanici);
+            deletedUser.State = EntityState.Deleted;
+            return await SaveChanges();
         }
 
         private bool VerifyPasswordHash(string password, byte[] kullaniciPasswordHash, byte[] kullaniciPasswordSalt)
@@ -60,17 +126,6 @@ namespace tasinmaz.API.Data
             }
         }
 
-        public async Task<Kullanici> Register(Kullanici kullanici, string password)
-        {
-            byte[] passwordHash, passwordSalt;
-            CreatePasswordHash(password, out passwordHash, out passwordSalt);
-            kullanici.PasswordHash = passwordHash;
-            kullanici.PasswordSalt = passwordSalt;
-            await _context.Kullanicilar.AddAsync(kullanici);
-            await _context.SaveChangesAsync();
-            return kullanici;
-        }
-
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
             using (var hmac = new System.Security.Cryptography.HMACSHA512())
@@ -80,24 +135,9 @@ namespace tasinmaz.API.Data
             }
         }
 
-        public async Task<bool> UserExists(string email)
+        private async Task<bool> SaveChanges()
         {
-            if (await _context.Kullanicilar.AnyAsync(x => x.Email == email))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        public Task<Kullanici> Remove(int kullaniciId)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<Kullanici> Edit(Kullanici kullanici)
-        {
-            throw new System.NotImplementedException();
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }

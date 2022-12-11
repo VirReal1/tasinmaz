@@ -20,7 +20,6 @@ namespace tasinmaz.API.Services.Concrete
         IHttpContextAccessor _httpAccessor;
         IMapper _mapper;
         ILogService _logService;
-        IUserRepository _userRepository;
 
         public TasinmazService(ITasinmazRepository tasinmazRepository, IHttpContextAccessor httpAccessor, IMapper mapper, ILogService logService, IUserRepository userRepository)
         {
@@ -28,13 +27,12 @@ namespace tasinmaz.API.Services.Concrete
             _httpAccessor = httpAccessor;
             _mapper = mapper;
             _logService = logService;
-            _userRepository = userRepository;
         }
 
         public async Task<ServiceResponse<List<TasinmazDto>>> GetAllAsync()
         {
-            ServiceResponse<List<TasinmazDto>> _response = new ServiceResponse<List<TasinmazDto>>();
-            Log _log = new Log();
+            ServiceResponse<List<TasinmazDto>> response = new ServiceResponse<List<TasinmazDto>>();
+            Log log = new Log();
 
             var tasinmazlarAllList = await _tasinmazRepository.GetAllAsync();
             var tasinmazlarDtoAllList = new List<TasinmazDto>();
@@ -46,37 +44,39 @@ namespace tasinmaz.API.Services.Concrete
 
             try
             {
-                _response.Message = "Got all Taşınmazlar.";
-                _response.Success = true;
-                _response.Data = tasinmazlarDtoAllList;
+                response.Process = "Taşınmazlar";
+                response.Message = "Got all Taşınmazlar.";
+                response.Success = true;
+                response.Data = tasinmazlarDtoAllList;
 
-                _log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                _log.Tarih = DateTime.Now;
-                _log.Durum = "Başarılı";
-                _log.Islem = "Getirme";
-                _log.Aciklama = $"Açıklama: \"{_response.Message}.\" - Veri: \"{JsonConvert.SerializeObject(_response.Data)}\"";
-                await _logService.AddAsync(_log);
+                log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
+                log.Tarih = DateTime.Now;
+                log.Durum = "Başarılı";
+                log.Islem = "Getirme";
+                log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"{JsonConvert.SerializeObject(response.Data)}\"";
+                await _logService.AddAsync(log);
             }
             catch (Exception e)
             {
-                _response.Message = "Error occured.";
-                _response.Success = false;
-                _response.Data = tasinmazlarDtoAllList;
-                _response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
+                response.Process = "Taşınmazlar";
+                response.Message = "Error occured.";
+                response.Success = false;
+                response.Data = tasinmazlarDtoAllList;
+                response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
 
-                _log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                _log.Tarih = DateTime.Now;
-                _log.Durum = "Başarısız";
-                _log.Islem = "Getirme";
-                _log.Aciklama = $"Açıklama: \"{_response.Message}\" - Veri: \"No Data\" - Hata Mesajları: \"{JsonConvert.SerializeObject(_response.ErrorMessages)}\"";
-                await _logService.AddAsync(_log);
+                log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
+                log.Tarih = DateTime.Now;
+                log.Durum = "Başarısız";
+                log.Islem = "Getirme";
+                log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"No Data\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
+                await _logService.AddAsync(log);
             }
-            return _response;
+            return response;
         }
         public async Task<ServiceResponse<List<TasinmazDto>>> GetTasinmazlarAsync(TasinmazDto tasinmazDto)
         {
-            ServiceResponse<List<TasinmazDto>> _response = new ServiceResponse<List<TasinmazDto>>();
-            Log _log = new Log();
+            ServiceResponse<List<TasinmazDto>> response = new ServiceResponse<List<TasinmazDto>>();
+            Log log = new Log();
 
             var tasinmazlarAllList = await _tasinmazRepository.GetAllAsync();
             var tasinmazlarDtoAllList = new List<TasinmazDto>();
@@ -90,7 +90,7 @@ namespace tasinmaz.API.Services.Concrete
                 (tasinmazDto.Parsel == null || x.Parsel.ToLower().Contains(tasinmazDto.Parsel.ToLower())) &&
                 (tasinmazDto.Nitelik == null || x.Nitelik.ToLower().Contains(tasinmazDto.Nitelik.ToLower())) &&
                 (tasinmazDto.KoordinatBilgileri == null || x.KoordinatBilgileri.ToLower().Contains(tasinmazDto.KoordinatBilgileri.ToLower())) &&
-                (tasinmazDto.KullaniciId == default || x.Kullanici.Id.ToString().ToLower().Contains(tasinmazDto.KullaniciId.ToString().ToLower())));
+                (tasinmazDto.KullaniciId == default || x.KullaniciId.ToString().ToLower().Contains(tasinmazDto.KullaniciId.ToString().ToLower())));
 
             foreach (var item in tasinmazlarAllList)
             {
@@ -101,136 +101,148 @@ namespace tasinmaz.API.Services.Concrete
             {
                 if (tasinmazDto == null)
                 {
-                    _response.Message = "No Parameter";
-                    _response.Success = false;
-                    _response.Data = tasinmazlarDtoAllList;
+                    response.Process = "Taşınmazlar";
+                    response.Message = "No Parameter";
+                    response.Success = false;
+                    response.Data = tasinmazlarDtoAllList;
 
-                    _log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                    _log.Tarih = DateTime.Now;
-                    _log.Durum = "Başarısız";
-                    _log.Islem = "Arama";
-                    _log.Aciklama = $"Açıklama: \"{_response.Message}.\" - Veri: \"No Data\"";
-                    await _logService.AddAsync(_log);
-                    return _response;
+                    log.KullaniciId = tasinmazDto.KullaniciId;
+                    log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
+                    log.Tarih = DateTime.Now;
+                    log.Durum = "Başarısız";
+                    log.Islem = "Arama";
+                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"No Data\"";
+                    await _logService.AddAsync(log);
+                    return response;
                 }
 
                 if (tasinmazlarList == null)
                 {
-                    _response.Message = "Parameters does not match with the database.";
-                    _response.Success = false;
-                    _response.Data = tasinmazlarDtoAllList;
+                    response.Process = "Taşınmazlar";
+                    response.Message = "Parameters does not match with the database.";
+                    response.Success = false;
+                    response.Data = tasinmazlarDtoAllList;
 
-                    _log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                    _log.Tarih = DateTime.Now;
-                    _log.Durum = "Başarısız";
-                    _log.Islem = "Arama";
-                    _log.Aciklama = $"Açıklama: \"{_response.Message}.\" - Veri: \"No Data\"";
-                    await _logService.AddAsync(_log);
-                    return _response;
+                    log.KullaniciId = tasinmazDto.KullaniciId;
+                    log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
+                    log.Tarih = DateTime.Now;
+                    log.Durum = "Başarısız";
+                    log.Islem = "Arama";
+                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"No Data\"";
+                    await _logService.AddAsync(log);
+                    return response;
                 }
-                _response.Message = "Taşınmazlar searched.";
-                _response.Success = false;
-                _response.Data = _mapper.Map<List<TasinmazDto>>(tasinmazlarList);
+                response.Process = "Taşınmazlar";
+                response.Message = "Taşınmazlar searched.";
+                response.Success = false;
+                response.Data = _mapper.Map<List<TasinmazDto>>(tasinmazlarList);
 
-                _log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                _log.Tarih = DateTime.Now;
-                _log.Durum = "Başarılı";
-                _log.Islem = "Arama";
-                _log.Aciklama = $"Açıklama: \"{_response.Message}.\" - Veri: \"{JsonConvert.SerializeObject(_response.Data)}\"";
-                await _logService.AddAsync(_log);
+                log.KullaniciId = tasinmazDto.KullaniciId;
+                log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
+                log.Tarih = DateTime.Now;
+                log.Durum = "Başarılı";
+                log.Islem = "Arama";
+                log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"{JsonConvert.SerializeObject(response.Data)}\"";
+                await _logService.AddAsync(log);
             }
             catch (Exception e)
             {
-                _response.Message = "Error occured.";
-                _response.Success = false;
-                _response.Data = tasinmazlarDtoAllList;
-                _response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
+                response.Process = "Taşınmazlar";
+                response.Message = "Error occured.";
+                response.Success = false;
+                response.Data = tasinmazlarDtoAllList;
+                response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
 
-                _log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                _log.Tarih = DateTime.Now;
-                _log.Durum = "Başarısız";
-                _log.Islem = "Arama";
-                _log.Aciklama = $"Açıklama: \"{_response.Message}\" - Veri: \"No Data\" - Hata Mesajları: \"{JsonConvert.SerializeObject(_response.ErrorMessages)}\"";
-                await _logService.AddAsync(_log);
+                log.KullaniciId = tasinmazDto.KullaniciId;
+                log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
+                log.Tarih = DateTime.Now;
+                log.Durum = "Başarısız";
+                log.Islem = "Arama";
+                log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"No Data\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
+                await _logService.AddAsync(log);
             }
-            return _response;
+            return response;
         }
 
         public async Task<ServiceResponse<TasinmazDto>> AddTasinmazAsync(TasinmazDto tasinmazDto)
         {
-            ServiceResponse<TasinmazDto> _response = new ServiceResponse<TasinmazDto>();
-            Log _log = new Log();
+            ServiceResponse<TasinmazDto> response = new ServiceResponse<TasinmazDto>();
+            Log log = new Log();
 
             try
             {
                 var tasinmazExists = await _tasinmazRepository.Exists(x => x.Adi == tasinmazDto.Adi);
                 if (tasinmazExists)
                 {
-                    _response.Message = "Taşınmaz exists.";
-                    _response.Success = false;
-                    _response.Data = null;
+                    response.Process = "Taşınmazlar";
+                    response.Message = "Taşınmaz exists.";
+                    response.Success = false;
+                    response.Data = null;
 
-                    _log.Kullanici = await _userRepository.Get(tasinmazDto.KullaniciId);
-                    _log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                    _log.Tarih = DateTime.Now;
-                    _log.Durum = "Başarısız";
-                    _log.Islem = "Yeni Kayıt";
-                    _log.Aciklama = $"Açıklama: \"{_response.Message}.\" - Veri: \"No Data\"";
-                    await _logService.AddAsync(_log);
-                    return _response;
+                    log.KullaniciId = tasinmazDto.KullaniciId;
+                    log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
+                    log.Tarih = DateTime.Now;
+                    log.Durum = "Başarısız";
+                    log.Islem = "Yeni Kayıt";
+                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"No Data\"";
+                    await _logService.AddAsync(log);
+                    return response;
                 }
 
                 var createdTasinmaz = _mapper.Map<Tasinmaz>(tasinmazDto);
 
                 if (!await _tasinmazRepository.AddAsync(createdTasinmaz))
                 {
-                    _response.Error = "Repository error.";
-                    _response.Success = false;
-                    _response.Data = null;
+                    response.Process = "Taşınmazlar";
+                    response.Message = "Repository error.";
+                    response.Success = false;
+                    response.Data = null;
 
-                    _log.Kullanici = await _userRepository.Get(tasinmazDto.KullaniciId);
-                    _log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                    _log.Tarih = DateTime.Now;
-                    _log.Durum = "Başarısız";
-                    _log.Islem = "Yeni Kayıt";
-                    _log.Aciklama = $"Açıklama: \"Something went wrong in repository layer when adding taşınmaz {tasinmazDto}.\" - Veri: \"No Data\"";
-                    await _logService.AddAsync(_log);
-                    return _response;
+                    log.KullaniciId = tasinmazDto.KullaniciId;
+                    log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
+                    log.Tarih = DateTime.Now;
+                    log.Durum = "Başarısız";
+                    log.Islem = "Yeni Kayıt";
+                    log.Aciklama = $"Açıklama: \"Something went wrong in repository layer when adding taşınmaz {tasinmazDto}.\" - Veri: \"No Data\"";
+                    await _logService.AddAsync(log);
+                    return response;
                 }
-                _response.Success = true;
-                _response.Data = _mapper.Map<TasinmazDto>(createdTasinmaz);
-                _response.Message = "Tasinmaz created";
+                response.Process = "Taşınmazlar";
+                response.Message = "Tasinmaz created";
+                response.Success = true;
+                response.Data = _mapper.Map<TasinmazDto>(createdTasinmaz);
 
-                _log.KullaniciId = tasinmazDto.KullaniciId;
-                _log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                _log.Tarih = DateTime.Now;
-                _log.Durum = "Başarılı";
-                _log.Islem = "Yeni Kayıt";
-                _log.Aciklama = $"Açıklama: \"{_response.Message}\" - Veri: \"{JsonConvert.SerializeObject(_response.Data)}\"";
-                await _logService.AddAsync(_log);
+                log.KullaniciId = tasinmazDto.KullaniciId;
+                log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
+                log.Tarih = DateTime.Now;
+                log.Durum = "Başarılı";
+                log.Islem = "Yeni Kayıt";
+                log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"{JsonConvert.SerializeObject(response.Data)}\"";
+                await _logService.AddAsync(log);
             }
             catch (Exception e)
             {
-                _response.Success = false;
-                _response.Data = null;
-                _response.Error = "Error occured.";
-                _response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
+                response.Process = "Taşınmazlar";
+                response.Message = "Error occured.";
+                response.Success = false;
+                response.Data = null;
+                response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
 
-                _log.Kullanici = await _userRepository.Get(tasinmazDto.KullaniciId);
-                _log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                _log.Tarih = DateTime.Now;
-                _log.Durum = "Başarısız";
-                _log.Islem = "Yeni Kayıt";
-                _log.Aciklama = $"Açıklama: \"Something went wrong in service layer when adding taşınmaz {tasinmazDto}.\" - Veri: \"No Data\" - Hata Mesajları: \"{JsonConvert.SerializeObject(_response.ErrorMessages)}\"";
-                await _logService.AddAsync(_log);
+                log.KullaniciId = tasinmazDto.KullaniciId;
+                log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
+                log.Tarih = DateTime.Now;
+                log.Durum = "Başarısız";
+                log.Islem = "Yeni Kayıt";
+                log.Aciklama = $"Açıklama: \"Something went wrong in service layer when adding taşınmaz {tasinmazDto}.\" - Veri: \"No Data\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
+                await _logService.AddAsync(log);
             }
-            return _response;
+            return response;
         }
 
         public async Task<ServiceResponse<TasinmazDto>> UpdateTasinmazAsync(TasinmazDto tasinmazDto)
         {
-            ServiceResponse<TasinmazDto> _response = new ServiceResponse<TasinmazDto>();
-            Log _log = new Log();
+            ServiceResponse<TasinmazDto> response = new ServiceResponse<TasinmazDto>();
+            Log log = new Log();
 
             try
             {
@@ -238,125 +250,141 @@ namespace tasinmaz.API.Services.Concrete
 
                 if (existingTasinmaz == null)
                 {
-                    _response.Message = "Not found.";
-                    _response.Success = false;
-                    _response.Data = null;
+                    response.Process = "Taşınmazlar";
+                    response.Message = "Not found.";
+                    response.Success = false;
+                    response.Data = null;
 
-                    _log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                    _log.Tarih = DateTime.Now;
-                    _log.Durum = "Başarısız";
-                    _log.Islem = "Güncelleme";
-                    _log.Aciklama = $"Açıklama: \"{_response.Message}.\" - Veri: \"No Data\"";
-                    await _logService.AddAsync(_log);
-                    return _response;
+                    log.KullaniciId = tasinmazDto.KullaniciId;
+                    log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
+                    log.Tarih = DateTime.Now;
+                    log.Durum = "Başarısız";
+                    log.Islem = "Güncelleme";
+                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"No Data\"";
+                    await _logService.AddAsync(log);
+                    return response;
                 }
 
                 existingTasinmaz = _mapper.Map<Tasinmaz>(tasinmazDto);
 
                 if (!await _tasinmazRepository.UpdateAsync(existingTasinmaz))
                 {
-                    _response.Error = "Repository error.";
-                    _response.Success = false;
-                    _response.Data = null;
+                    response.Process = "Taşınmazlar";
+                    response.Message = "Repository error.";
+                    response.Success = false;
+                    response.Data = null;
 
-                    _log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                    _log.Tarih = DateTime.Now;
-                    _log.Durum = "Başarısız";
-                    _log.Islem = "Güncelleme";
-                    _log.Aciklama = $"Açıklama: \"Something went wrong in repository layer when adding taşınmaz {tasinmazDto}.\" - Veri: \"No Data\"";
-                    await _logService.AddAsync(_log);
-                    return _response;
+                    log.KullaniciId = tasinmazDto.KullaniciId;
+                    log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
+                    log.Tarih = DateTime.Now;
+                    log.Durum = "Başarısız";
+                    log.Islem = "Güncelleme";
+                    log.Aciklama = $"Açıklama: \"Something went wrong in repository layer when updating taşınmaz {tasinmazDto}.\" - Veri: \"No Data\"";
+                    await _logService.AddAsync(log);
+                    return response;
                 }
-                _response.Success = true;
-                _response.Data = _mapper.Map<TasinmazDto>(existingTasinmaz);
-                _response.Message = "Taşınmaz updated";
+                response.Process = "Taşınmazlar";
+                response.Message = "Taşınmaz updated";
+                response.Success = true;
+                response.Data = _mapper.Map<TasinmazDto>(existingTasinmaz);
 
-                _log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                _log.Tarih = DateTime.Now;
-                _log.Durum = "Başarılı";
-                _log.Islem = "Güncelleme";
-                _log.Aciklama = $"Açıklama: \"{_response.Message}\" - Veri: \"{JsonConvert.SerializeObject(_response.Data)}\"";
-                await _logService.AddAsync(_log);
+                log.KullaniciId = tasinmazDto.KullaniciId;
+                log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
+                log.Tarih = DateTime.Now;
+                log.Durum = "Başarılı";
+                log.Islem = "Güncelleme";
+                log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"{JsonConvert.SerializeObject(response.Data)}\"";
+                await _logService.AddAsync(log);
             }
             catch (Exception e)
             {
-                _response.Success = false;
-                _response.Data = null;
-                _response.Error = "Error occured.";
-                _response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
+                response.Process = "Taşınmazlar";
+                response.Message = "Error occured.";
+                response.Success = false;
+                response.Data = null;
+                response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
 
-                _log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                _log.Tarih = DateTime.Now;
-                _log.Durum = "Başarısız";
-                _log.Islem = "Güncelleme";
-                _log.Aciklama = $"Açıklama: \"Something went wrong in service layer when adding taşınmaz {tasinmazDto}.\" - Veri: \"No Data\" - Hata Mesajları: \"{JsonConvert.SerializeObject(_response.ErrorMessages)}\"";
-                await _logService.AddAsync(_log);
+                log.KullaniciId = tasinmazDto.KullaniciId;
+                log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
+                log.Tarih = DateTime.Now;
+                log.Durum = "Başarısız";
+                log.Islem = "Güncelleme";
+                log.Aciklama = $"Açıklama: \"Something went wrong in service layer when updating taşınmaz {tasinmazDto}.\" - Veri: \"No Data\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
+                await _logService.AddAsync(log);
             }
-            return _response;
+            return response;
         }
 
         public async Task<ServiceResponse<TasinmazDto>> DeleteTasinmazAsync(TasinmazDto tasinmazDto)
         {
-            ServiceResponse<TasinmazDto> _response = new ServiceResponse<TasinmazDto>();
-            Log _log = new Log();
+            ServiceResponse<TasinmazDto> response = new ServiceResponse<TasinmazDto>();
+            Log log = new Log();
 
             try
             {
                 if (!await _tasinmazRepository.Exists(x => x.Id == tasinmazDto.Id))
                 {
-                    _response.Message = "Not found.";
-                    _response.Success = false;
-                    _response.Data = null;
+                    response.Process = "Taşınmazlar";
+                    response.Message = "Not found.";
+                    response.Success = false;
+                    response.Data = null;
 
-                    _log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                    _log.Tarih = DateTime.Now;
-                    _log.Durum = "Başarısız";
-                    _log.Islem = "Silme";
-                    _log.Aciklama = $"Açıklama: \"{_response.Message}.\" - Veri: \"No Data\"";
-                    await _logService.AddAsync(_log);
-                    return _response;
+                    log.KullaniciId = tasinmazDto.KullaniciId;
+                    log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
+                    log.Tarih = DateTime.Now;
+                    log.Durum = "Başarısız";
+                    log.Islem = "Silme";
+                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"No Data\"";
+                    await _logService.AddAsync(log);
+                    return response;
                 }
 
                 if (!await _tasinmazRepository.DeleteAsync(_mapper.Map<Tasinmaz>(tasinmazDto)))
                 {
-                    _response.Error = "Repository error.";
-                    _response.Success = false;
-                    _response.Data = null;
+                    response.Process = "Taşınmazlar";
+                    response.Message = "Repository error.";
+                    response.Success = false;
+                    response.Data = null;
 
-                    _log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                    _log.Tarih = DateTime.Now;
-                    _log.Durum = "Başarısız";
-                    _log.Islem = "Silme";
-                    _log.Aciklama = $"Açıklama: \"Something went wrong in repository layer when adding taşınmaz {tasinmazDto}.\" - Veri: \"No Data\"";
-                    await _logService.AddAsync(_log);
-                    return _response;
+                    log.KullaniciId = tasinmazDto.KullaniciId;
+                    log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
+                    log.Tarih = DateTime.Now;
+                    log.Durum = "Başarısız";
+                    log.Islem = "Silme";
+                    log.Aciklama = $"Açıklama: \"Something went wrong in repository layer when deleting taşınmaz {tasinmazDto}.\" - Veri: \"No Data\"";
+                    await _logService.AddAsync(log);
+                    return response;
                 }
-                _response.Success = true;
-                _response.Data = null;
-                _response.Message = "Taşınmaz deleted.";
+                response.Process = "Taşınmazlar";
+                response.Success = true;
+                response.Data = null;
+                response.Message = "Taşınmaz deleted.";
 
-                _log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                _log.Tarih = DateTime.Now;
-                _log.Durum = "Başarılı";
-                _log.Islem = "Silme";
-                _log.Aciklama = $"Açıklama: \"{_response.Message}\" - Veri: \"{JsonConvert.SerializeObject(_response.Data)}\"";
-                await _logService.AddAsync(_log);
+                log.KullaniciId = tasinmazDto.KullaniciId;
+                log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
+                log.Tarih = DateTime.Now;
+                log.Durum = "Başarılı";
+                log.Islem = "Silme";
+                log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"{JsonConvert.SerializeObject(response.Data)}\"";
+                await _logService.AddAsync(log);
             }
             catch (Exception e)
             {
-                _response.Success = false;
-                _response.Data = null;
-                _response.Error = "Error occured.";
-                _response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
+                response.Process = "Taşınmazlar";
+                response.Success = false;
+                response.Data = null;
+                response.Message = "Error occured.";
+                response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
 
-                _log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                _log.Tarih = DateTime.Now;
-                _log.Durum = "Başarısız";
-                _log.Islem = "Silme";
-                _log.Aciklama = $"Açıklama: \"Something went wrong in service layer when adding taşınmaz {tasinmazDto}.\" - Veri: \"No Data\" - Hata Mesajları: \"{JsonConvert.SerializeObject(_response.ErrorMessages)}\"";
-                await _logService.AddAsync(_log);
+                log.KullaniciId = tasinmazDto.KullaniciId;
+                log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
+                log.Tarih = DateTime.Now;
+                log.Durum = "Başarısız";
+                log.Islem = "Silme";
+                log.Aciklama = $"Açıklama: \"Something went wrong in service layer when deleting taşınmaz {tasinmazDto}.\" - Veri: \"No Data\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
+                await _logService.AddAsync(log);
             }
-            return _response;
+            return response;
         }
     }
 }

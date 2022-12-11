@@ -14,6 +14,8 @@ namespace tasinmaz.API.Helpers
             CreateMap<Tasinmaz, TasinmazDto>().ReverseMap();
             CreateMap<Log, LogDto>();
             CreateMap<Kullanici, KullaniciForShowDeleteDto>();
+            CreateMap<KullaniciForAddUpdateDto, Kullanici>().ReverseMap();
+            CreateMap<KullaniciForShowDeleteDto, Kullanici>();
         }
     }
 }
