@@ -11,7 +11,7 @@ import { AlertifyService } from './alertify.service';
 })
 export class AuthService {
   constructor(private http: HttpClient, private router: Router, private alertifyService: AlertifyService) {}
-  path = 'https://localhost:44343/api/auth/';
+  path = 'https://localhost:44343/api/users/';
   jwtHelper: JwtHelper = new JwtHelper();
   TOKEN_KEY = 'token';
 
