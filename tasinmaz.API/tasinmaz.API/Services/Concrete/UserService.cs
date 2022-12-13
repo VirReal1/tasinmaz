@@ -34,19 +34,18 @@ namespace tasinmaz.API.Services.Concrete
             ServiceResponse<List<KullaniciForShowDeleteDto>> response = new ServiceResponse<List<KullaniciForShowDeleteDto>>();
             Log log = new Log();
 
-            var usersAllList = await _userRepository.GetAllAsync();
-            var usersDtoAllList = new List<KullaniciForShowDeleteDto>();
-
-            foreach (var item in usersAllList)
-            {
-                usersDtoAllList.Add(_mapper.Map<KullaniciForShowDeleteDto>(item));
-            }
-
             try
             {
-                response.Process = "Users";
-                response.Message = "Got all users.";
-                response.Success = true;
+                var usersAllList = await _userRepository.GetAllAsync();
+                var usersDtoAllList = new List<KullaniciForShowDeleteDto>();
+
+                foreach (var item in usersAllList)
+                {
+                    usersDtoAllList.Add(_mapper.Map<KullaniciForShowDeleteDto>(item));
+                }
+
+                response.Process = "Kullanıcılar";
+                response.Message = "Bütün kullanıcılar getirildi.";
                 response.Data = usersDtoAllList;
 
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
@@ -58,82 +57,64 @@ namespace tasinmaz.API.Services.Concrete
             }
             catch (Exception e)
             {
-                response.Process = "Users";
-                response.Message = "Error occured.";
-                response.Success = false;
-                response.Data = usersDtoAllList;
+                response.Process = "Kullanıcılar";
+                response.Message = "Taşınmazları getirirken servis katmanında bir hata oluştu.";
+                response.Error = true;
+                response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
 
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarısız";
                 log.Islem = "Getirme";
-                log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"No Data\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
+                log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
                 await _logService.AddAsync(log);
             }
             return response;
         }
 
-        public async Task<ServiceResponse<List<KullaniciForShowDeleteDto>>> GetUsersAsync(KullaniciForShowDeleteDto kullaniciForShowDeleteDto)
+        public async Task<ServiceResponse<List<KullaniciForShowDeleteDto>>> GetUsersAsync(KullaniciForShowDeleteDto kullaniciForShowDto)
         {
             ServiceResponse<List<KullaniciForShowDeleteDto>> response = new ServiceResponse<List<KullaniciForShowDeleteDto>>();
             Log log = new Log();
 
-            var usersAllList = await _userRepository.GetAllAsync();
-            var usersDtoAllList = new List<KullaniciForShowDeleteDto>();
-            var usersList = await _userRepository.GetAllAsync(x =>
-                (kullaniciForShowDeleteDto.Id == default || x.Id.ToString().ToLower().Contains(kullaniciForShowDeleteDto.Id.ToString().ToLower())) &&
-                (kullaniciForShowDeleteDto.Ad == null || x.Ad.ToLower().Contains(kullaniciForShowDeleteDto.Ad.ToLower())) &&
-                (kullaniciForShowDeleteDto.Soyad == null || x.Soyad.ToLower().Contains(kullaniciForShowDeleteDto.Soyad.ToLower())) &&
-                (kullaniciForShowDeleteDto.Email == null || x.Email.ToLower().Contains(kullaniciForShowDeleteDto.Email.ToLower())) &&
-                (x.AdminMi==kullaniciForShowDeleteDto.AdminMi));
-
-            foreach (var item in usersAllList)
-            {
-                usersDtoAllList.Add(_mapper.Map<KullaniciForShowDeleteDto>(item));
-            }
-
             try
             {
-                if (kullaniciForShowDeleteDto == null)
-                {
-                    response.Process = "Users";
-                    response.Message = "No Parameter";
-                    response.Success = false;
-                    response.Data = usersDtoAllList;
+                var usersAllList = await _userRepository.GetAllAsync();
+                var usersDtoAllList = new List<KullaniciForShowDeleteDto>();
+                var usersList = await _userRepository.GetAllAsync(x =>
+                    (kullaniciForShowDto.Id == default || x.Id.ToString().ToLower().Contains(kullaniciForShowDto.Id.ToString().ToLower())) &&
+                    (kullaniciForShowDto.Ad == null || x.Ad.ToLower().Contains(kullaniciForShowDto.Ad.ToLower())) &&
+                    (kullaniciForShowDto.Soyad == null || x.Soyad.ToLower().Contains(kullaniciForShowDto.Soyad.ToLower())) &&
+                    (kullaniciForShowDto.Email == null || x.Email.ToLower().Contains(kullaniciForShowDto.Email.ToLower())) &&
+                    (x.AdminMi == kullaniciForShowDto.AdminMi));
 
-                    log.KullaniciId = kullaniciForShowDeleteDto.Id;
-                    log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                    log.Tarih = DateTime.Now;
-                    log.Durum = "Başarısız";
-                    log.Islem = "Arama";
-                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"No Data\"";
-                    await _logService.AddAsync(log);
-                    return response;
+                foreach (var item in usersAllList)
+                {
+                    usersDtoAllList.Add(_mapper.Map<KullaniciForShowDeleteDto>(item));
                 }
 
                 if (usersList == null)
                 {
-                    response.Process = "Users";
-                    response.Message = "Parameters does not match with the database.";
-                    response.Success = false;
+                    response.Process = "Kullanıcılar";
+                    response.Message = "Arama parametreleri veri tabanıyla eşleşmedi.";
+                    response.Warning = true;
                     response.Data = usersDtoAllList;
 
-                    log.KullaniciId = kullaniciForShowDeleteDto.Id;
+                    log.KullaniciId = kullaniciForShowDto.Id;
                     log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Arama";
-                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"No Data\"";
+                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"Veri yok.\"";
                     await _logService.AddAsync(log);
                     return response;
                 }
-                response.Process = "Users";
-                response.Message = "Users searched.";
-                response.Success = false;
+                response.Process = "Kullanıcılar";
+                response.Message = "Kullanıcılar başarıyla filtrelendi.";
                 response.Data = _mapper.Map<List<KullaniciForShowDeleteDto>>(usersList);
 
-                log.KullaniciId = kullaniciForShowDeleteDto.Id;
+                log.KullaniciId = kullaniciForShowDto.Id;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarılı";
@@ -143,18 +124,18 @@ namespace tasinmaz.API.Services.Concrete
             }
             catch (Exception e)
             {
-                response.Process = "Users";
-                response.Message = "Error occured.";
-                response.Success = false;
-                response.Data = usersDtoAllList;
+                response.Process = "Kullanıcılar";
+                response.Message = "Taşınmazları filtrelerken servis katmanında bir hata oluştu.";
+                response.Error = true;
+                response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
 
-                log.KullaniciId = kullaniciForShowDeleteDto.Id;
+                log.KullaniciId = kullaniciForShowDto.Id;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarısız";
                 log.Islem = "Arama";
-                log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"No Data\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
+                log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
                 await _logService.AddAsync(log);
             }
             return response;
@@ -165,28 +146,27 @@ namespace tasinmaz.API.Services.Concrete
             ServiceResponse<KullaniciToken> response = new ServiceResponse<KullaniciToken>();
             Log log = new Log();
 
-            var kullaniciToken = await _userRepository.LoginUserAsync(kullaniciForLoginDto);
             try
             {
+                var kullaniciToken = await _userRepository.LoginUserAsync(kullaniciForLoginDto);
+
                 if (kullaniciToken == null)
                 {
-                    response.Process = "Users";
-                    response.Message = "E-Mail or password is wrong.";
-                    response.Success = false;
+                    response.Process = "Kullanıcılar";
+                    response.Message = "E-Mail ya da şifre hatalı.";
+                    response.Warning = true;
                     response.Data = null;
 
-                    log.KullaniciId = kullaniciToken.Id;
                     log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Giriş";
-                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"No Data\"";
+                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"Veri yok.\"";
                     await _logService.AddAsync(log);
                     return response;
                 }
-                response.Process = "Users";
-                response.Message = "User logged in.";
-                response.Success = true;
+                response.Process = "Kullanıcılar";
+                response.Message = "Başarıyla giriş yapıldı.";
                 response.Data = kullaniciToken;
 
                 log.KullaniciId = kullaniciToken.Id;
@@ -199,70 +179,68 @@ namespace tasinmaz.API.Services.Concrete
             }
             catch (Exception e)
             {
-                response.Process = "Users";
-                response.Message = "Error occured.";
-                response.Success = false;
+                response.Process = "Kullanıcılar";
+                response.Message = "Kullanıcı servis katmanında giriş yapılırken bir hata oluştu.";
+                response.Error = true;
                 response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
 
-                log.KullaniciId = kullaniciToken.Id;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarısız";
                 log.Islem = "Giriş";
-                log.Aciklama = $"Açıklama: \"Something went wrong in service layer when logging user {kullaniciForLoginDto}.\" - Veri: \"No Data\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
+                log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
                 await _logService.AddAsync(log);
             }
             return response;
         }
 
-        public async Task<ServiceResponse<KullaniciForShowDeleteDto>> AddUserAsync(KullaniciForAddUpdateDto kullaniciForAddUpdateDto)
+        public async Task<ServiceResponse<KullaniciForShowDeleteDto>> AddUserAsync(KullaniciForAddUpdateDto kullaniciForAddDto)
         {
             ServiceResponse<KullaniciForShowDeleteDto> response = new ServiceResponse<KullaniciForShowDeleteDto>();
             Log log = new Log();
 
             try
             {
-                var userExists = await _userRepository.Exists(x => x.Email == kullaniciForAddUpdateDto.Email);
+                var userExists = await _userRepository.Exists(x => x.Email == kullaniciForAddDto.Email);
                 if (userExists)
                 {
-                    response.Process = "Users";
-                    response.Message = "User exists.";
-                    response.Success = false;
+                    response.Process = "Kullanıcılar";
+                    response.Message = "Kullanıcı veri tabanında mevcut.";
+                    response.Warning = true;
                     response.Data = null;
 
-                    log.KullaniciId = kullaniciForAddUpdateDto.Id;
+                    log.KullaniciId = kullaniciForAddDto.Id;
                     log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Yeni Kayıt";
-                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"No Data\"";
+                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"Veri yok.\"";
                     await _logService.AddAsync(log);
                     return response;
                 }
 
-                if (!await _userRepository.AddAsync(kullaniciForAddUpdateDto))
+                if (!await _userRepository.AddAsync(kullaniciForAddDto))
                 {
-                    response.Process = "Users";
-                    response.Message = "Repository error.";
-                    response.Success = false;
+                    response.Process = "Kullanıcılar";
+                    response.Message = "Kullanıcı veri tabanına eklenirken bir hata oluştu.";
+                    response.Error = true;
                     response.Data = null;
 
-                    log.KullaniciId = kullaniciForAddUpdateDto.Id;
+                    log.KullaniciId = kullaniciForAddDto.Id;
                     log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Yeni Kayıt";
-                    log.Aciklama = $"Açıklama: \"Something went wrong in repository layer when adding user {kullaniciForAddUpdateDto}.\" - Veri: \"No Data\"";
+                    log.Aciklama = $"Açıklama: \"Kullanıcı: {kullaniciForAddDto.Email} veri tabanına eklenirken bir hata oluştu.\" - Veri: \"Veri yok.\"";
                     await _logService.AddAsync(log);
                     return response;
                 }
-                response.Process = "Users";
-                response.Message = "User created";
-                response.Success = true;
-                response.Data = _mapper.Map<KullaniciForShowDeleteDto>(kullaniciForAddUpdateDto);
+                response.Process = "Kullanıcılar";
+                response.Message = "Kullanıcı başarıyla eklendi.";
+                response.Data = _mapper.Map<KullaniciForShowDeleteDto>(kullaniciForAddDto);
 
-                log.KullaniciId = kullaniciForAddUpdateDto.Id;
+                log.KullaniciId = kullaniciForAddDto.Id;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarılı";
@@ -272,70 +250,69 @@ namespace tasinmaz.API.Services.Concrete
             }
             catch (Exception e)
             {
-                response.Process = "Users";
-                response.Message = "Error occured.";
-                response.Success = false;
+                response.Process = "Kullanıcılar";
+                response.Message = "Kullanıcı servis katmanında eklenirken bir hata oluştu.";
+                response.Error = true;
                 response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
 
-                log.KullaniciId = kullaniciForAddUpdateDto.Id;
+                log.KullaniciId = kullaniciForAddDto.Id;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarısız";
                 log.Islem = "Yeni Kayıt";
-                log.Aciklama = $"Açıklama: \"Something went wrong in service layer when adding user {kullaniciForAddUpdateDto}.\" - Veri: \"No Data\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
+                log.Aciklama = $"Açıklama: \"Kullanıcı: \"{kullaniciForAddDto.Email}\" servis katmanında eklenirken bir hata oluştu.\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
                 await _logService.AddAsync(log);
             }
             return response;
         }
-        public async Task<ServiceResponse<KullaniciForShowDeleteDto>> UpdateUserAsync(KullaniciForAddUpdateDto kullaniciForAddUpdateDto)
+        public async Task<ServiceResponse<KullaniciForShowDeleteDto>> UpdateUserAsync(KullaniciForAddUpdateDto kullaniciForUpdateDto)
         {
             ServiceResponse<KullaniciForShowDeleteDto> response = new ServiceResponse<KullaniciForShowDeleteDto>();
             Log log = new Log();
 
             try
             {
-                var existingUser = await _userRepository.Get(x => x.Id == kullaniciForAddUpdateDto.Id);
+                var existingUser = await _userRepository.Get(x => x.Id == kullaniciForUpdateDto.Id);
 
                 if (existingUser == null)
                 {
-                    response.Process = "Users";
-                    response.Message = "Not found.";
-                    response.Success = false;
+                    response.Process = "Kullanıcılar";
+                    response.Message = "Kullanıcı veri tabanında bulunamadı.";
+                    response.Warning = true;
                     response.Data = null;
 
-                    log.KullaniciId = kullaniciForAddUpdateDto.Id;
+                    log.KullaniciId = kullaniciForUpdateDto.Id;
                     log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Güncelleme";
-                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"No Data\"";
+                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"Veri yok.\"";
                     await _logService.AddAsync(log);
                     return response;
                 }
 
-                if (!await _userRepository.UpdateAsync(kullaniciForAddUpdateDto))
+                if (!await _userRepository.UpdateAsync(kullaniciForUpdateDto))
                 {
-                    response.Process = "Users";
-                    response.Message = "Repository error.";
-                    response.Success = false;
+                    response.Process = "Kullanıcılar";
+                    response.Message = "Kullanıcı veri tabanına güncellenirken bir hata oluştu.";
+                    response.Error = true;
                     response.Data = null;
 
-                    log.KullaniciId = kullaniciForAddUpdateDto.Id;
+                    log.KullaniciId = kullaniciForUpdateDto.Id;
                     log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Güncelleme";
-                    log.Aciklama = $"Açıklama: \"Something went wrong in repository layer when updating user {kullaniciForAddUpdateDto}.\" - Veri: \"No Data\"";
+                    log.Aciklama = $"Açıklama: \"Kullanıcı: \"{kullaniciForUpdateDto.Email}\" veri tabanına güncellenirken bir hata oluştu.\" - Veri: \"Veri yok.\"";
                     await _logService.AddAsync(log);
                     return response;
                 }
-                response.Process = "Users";
-                response.Message = "Taşınmaz updated";
-                response.Success = true;
-                response.Data = _mapper.Map<KullaniciForShowDeleteDto>(kullaniciForAddUpdateDto);
+                response.Process = "Kullanıcılar";
+                response.Message = "Taşınmaz başarıyla güncellendi.";
+                response.Data = _mapper.Map<KullaniciForShowDeleteDto>(kullaniciForUpdateDto);
 
-                log.KullaniciId = kullaniciForAddUpdateDto.Id;
+                log.KullaniciId = kullaniciForUpdateDto.Id;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarılı";
@@ -345,69 +322,68 @@ namespace tasinmaz.API.Services.Concrete
             }
             catch (Exception e)
             {
-                response.Process = "Users";
-                response.Message = "Error occured.";
-                response.Success = false;
+                response.Process = "Kullanıcılar";
+                response.Message = "Kullanıcı servis katmanında güncellenirken bir hata oluştu.";
+                response.Error = true;
                 response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
 
-                log.KullaniciId = kullaniciForAddUpdateDto.Id;
+                log.KullaniciId = kullaniciForUpdateDto.Id;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarısız";
                 log.Islem = "Güncelleme";
-                log.Aciklama = $"Açıklama: \"Something went wrong in service layer when updating user {kullaniciForAddUpdateDto}.\" - Veri: \"No Data\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
+                log.Aciklama = $"Açıklama: \"Kullanıcı: \"{kullaniciForUpdateDto.Email}\" servis katmanında güncellenirken bir hata oluştu.\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
                 await _logService.AddAsync(log);
             }
             return response;
         }
 
-        public async Task<ServiceResponse<KullaniciForShowDeleteDto>> DeleteUserAsync(KullaniciForShowDeleteDto kullaniciForShowDeleteDto)
+        public async Task<ServiceResponse<KullaniciForShowDeleteDto>> DeleteUserAsync(KullaniciForShowDeleteDto kullaniciForDeleteDto)
         {
             ServiceResponse<KullaniciForShowDeleteDto> response = new ServiceResponse<KullaniciForShowDeleteDto>();
             Log log = new Log();
 
             try
             {
-                if (!await _userRepository.Exists(x => x.Id == kullaniciForShowDeleteDto.Id))
+                if (!await _userRepository.Exists(x => x.Id == kullaniciForDeleteDto.Id))
                 {
-                    response.Process = "Users";
-                    response.Message = "Not found.";
-                    response.Success = false;
+                    response.Process = "Kullanıcılar";
+                    response.Message = "Kullanıcı veri tabanında bulunamadı.";
+                    response.Warning = true;
                     response.Data = null;
 
-                    log.KullaniciId = kullaniciForShowDeleteDto.Id;
+                    log.KullaniciId = kullaniciForDeleteDto.Id;
                     log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Silme";
-                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"No Data\"";
+                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"Veri yok.\"";
                     await _logService.AddAsync(log);
                     return response;
                 }
 
-                if (!await _userRepository.DeleteAsync(_mapper.Map<Kullanici>(kullaniciForShowDeleteDto)))
+                if (!await _userRepository.DeleteAsync(_mapper.Map<Kullanici>(kullaniciForDeleteDto)))
                 {
-                    response.Process = "Users";
-                    response.Message = "Repository error.";
-                    response.Success = false;
+                    response.Process = "Kullanıcılar";
+                    response.Message = "Taşınmaz veri tabanından silinirken bir hata oluştu.";
+                    response.Error = true;
                     response.Data = null;
 
-                    log.KullaniciId = kullaniciForShowDeleteDto.Id;
+                    log.KullaniciId = kullaniciForDeleteDto.Id;
                     log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Silme";
-                    log.Aciklama = $"Açıklama: \"Something went wrong in repository layer when deleting user {kullaniciForShowDeleteDto}.\" - Veri: \"No Data\"";
+                    log.Aciklama = $"Açıklama: \"Kullanıcı: \"{kullaniciForDeleteDto.Email}\" veri tabanından silinirken bir hata oluştu.\" - Veri: \"Veri yok.\"";
                     await _logService.AddAsync(log);
                     return response;
                 }
-                response.Process = "Users";
-                response.Success = true;
+                response.Process = "Kullanıcılar";
+                response.Message = "Kullanıcı başarıyla silindi.";
                 response.Data = null;
-                response.Message = "User deleted.";
 
-                log.KullaniciId = kullaniciForShowDeleteDto.Id;
+                log.KullaniciId = kullaniciForDeleteDto.Id;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarılı";
@@ -417,18 +393,18 @@ namespace tasinmaz.API.Services.Concrete
             }
             catch (Exception e)
             {
-                response.Process = "Users";
-                response.Success = false;
+                response.Process = "Kullanıcılar";
+                response.Message = "Kullanıcı servis katmanından silinirken bir hata oluştu.";
+                response.Error = true;
                 response.Data = null;
-                response.Message = "Error occured.";
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
 
-                log.KullaniciId = kullaniciForShowDeleteDto.Id;
+                log.KullaniciId = kullaniciForDeleteDto.Id;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarısız";
                 log.Islem = "Silme";
-                log.Aciklama = $"Açıklama: \"Something went wrong in service layer when deleting user {kullaniciForShowDeleteDto}.\" - Veri: \"No Data\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
+                log.Aciklama = $"Açıklama: \"Kullanıcı: \"{kullaniciForDeleteDto.Email}\" servis katmanından silinirken bir hata oluştu.\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
                 await _logService.AddAsync(log);
             }
             return response;

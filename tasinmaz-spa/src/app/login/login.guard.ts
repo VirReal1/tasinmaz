@@ -12,7 +12,7 @@ export class LoginGuard implements CanActivate {
       if (logged) {
         return true;
       }
-      this.router.navigate(['login']); //If the user is not logged in, this will navigate the user to login page if he presses any admin site
+      this.router.navigate(['login']);
       return false;
   }
 }

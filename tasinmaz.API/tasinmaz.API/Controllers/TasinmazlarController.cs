@@ -23,15 +23,14 @@ namespace tasinmaz.API.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TasinmazDto>))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> GetAll() //Will Be Deleted
+        public async Task<ActionResult> GetAll()
         {
             var allTasinmazlar = await _tasinmazService.GetAllAsync();
 
-            if (allTasinmazlar.Success == false && allTasinmazlar.Message == "Error occured.")
+            if (allTasinmazlar.Warning)
             {
-                ModelState.AddModelError("", $"Something went wrong in service layer when getting taşınmazlar.");
+                ModelState.AddModelError("", allTasinmazlar.Message);
                 return StatusCode(500, ModelState);
             }
 
@@ -40,38 +39,21 @@ namespace tasinmaz.API.Controllers
 
         [HttpPost("search")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TasinmazDto>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> GetBySearch([FromBody] TasinmazDto tasinmazDto = null)
         {
-            if (tasinmazDto == null)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var searchTasinmaz = await _tasinmazService.GetTasinmazlarAsync(tasinmazDto);
 
-            if (searchTasinmaz.Success == false && searchTasinmaz.Message == "No Parameter.")
+            if (searchTasinmaz.Warning)
             {
                 ModelState.AddModelError("", searchTasinmaz.Message);
                 return StatusCode(404, ModelState);
             }
 
-            if (searchTasinmaz.Success == false && searchTasinmaz.Message == "Parameters does not match with the database.")
+            if (searchTasinmaz.Error)
             {
                 ModelState.AddModelError("", searchTasinmaz.Message);
-                return StatusCode(404, ModelState);
-            }
-
-            if (searchTasinmaz.Success == false && searchTasinmaz.Message == "Error occured.")
-            {
-                ModelState.AddModelError("", $"Something went wrong in service layer when searching taşınmazlar.");
                 return StatusCode(500, ModelState);
             }
 
@@ -80,37 +62,21 @@ namespace tasinmaz.API.Controllers
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TasinmazDto))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> Add([FromBody] TasinmazDto tasinmazDto)
         {
-            if (tasinmazDto == null)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var createTasinmaz = await _tasinmazService.AddTasinmazAsync(tasinmazDto);
 
-            if (createTasinmaz.Success == false && createTasinmaz.Message == "Taşınmaz exists.")
+            if (createTasinmaz.Warning)
             {
-                return Ok(createTasinmaz);
+                ModelState.AddModelError("", createTasinmaz.Message);
+                return StatusCode(403, ModelState);
             }
 
-            if (createTasinmaz.Success == false && createTasinmaz.Message == "Repository error.")
+            if (createTasinmaz.Error)
             {
-                ModelState.AddModelError("", $"Something went wrong in repository layer when adding taşınmaz {tasinmazDto}.");
-                return StatusCode(500, ModelState);
-            }
-
-            if (createTasinmaz.Success == false && createTasinmaz.Message == "Error occured.")
-            {
-                ModelState.AddModelError("", $"Something went wrong in service layer when adding taşınmaz {tasinmazDto}.");
+                ModelState.AddModelError("", createTasinmaz.Message);
                 return StatusCode(500, ModelState);
             }
 
@@ -119,69 +85,47 @@ namespace tasinmaz.API.Controllers
 
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> Update([FromBody] TasinmazDto tasinmazDto)
         {
-            if (tasinmazDto == null)
-            {
-                return BadRequest(ModelState);
-            }
-
             var updateTasinmaz = await _tasinmazService.UpdateTasinmazAsync(tasinmazDto);
 
-            if (updateTasinmaz.Success == false && updateTasinmaz.Message == "Not found.")
+            if (updateTasinmaz.Warning)
             {
-                return Ok(updateTasinmaz);
+                ModelState.AddModelError("", updateTasinmaz.Message);
+                return StatusCode(404, ModelState);
             }
 
-            if (updateTasinmaz.Success == false && updateTasinmaz.Message == "Repository error.")
+            if (updateTasinmaz.Error)
             {
-                ModelState.AddModelError("", $"Something went wrong in repository layer when updating taşınmaz {tasinmazDto}.");
+                ModelState.AddModelError("", updateTasinmaz.Message);
                 return StatusCode(500, ModelState);
             }
 
-            if (updateTasinmaz.Success == false && updateTasinmaz.Message == "Error occured.")
-            {
-                ModelState.AddModelError("", $"Something went wrong in service layer when updating taşınmaz {tasinmazDto}.");
-                return StatusCode(500, ModelState);
-            }
             return Ok(updateTasinmaz);
         }
 
         [HttpDelete]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> Delete([FromBody] TasinmazDto tasinmazDto)
         {
-            if (tasinmazDto == null)
-            {
-                return BadRequest(ModelState);
-            }
-
             var removeTasinmaz = await _tasinmazService.DeleteTasinmazAsync(tasinmazDto);
 
-            if (removeTasinmaz.Success == false && removeTasinmaz.Message == "Not found.")
+            if (removeTasinmaz.Warning)
             {
                 ModelState.AddModelError("", removeTasinmaz.Message);
                 return StatusCode(404, ModelState);
-
             }
 
-            if (removeTasinmaz.Success == false && removeTasinmaz.Message == "Repository error.")
+            if (removeTasinmaz.Error)
             {
-                ModelState.AddModelError("", $"Something went wrong in repository layer when deleting taşınmaz {tasinmazDto}.");
+                ModelState.AddModelError("", removeTasinmaz.Message);
                 return StatusCode(500, ModelState);
             }
 
-            if (removeTasinmaz.Success == false && removeTasinmaz.Message == "Error occured.")
-            {
-                ModelState.AddModelError("", $"Something went wrong in service layer when deleting taşınmaz {tasinmazDto}.");
-                return StatusCode(500, ModelState);
-            }
             return NoContent();
         }
     }
