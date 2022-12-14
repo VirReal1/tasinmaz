@@ -1,17 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using tasinmaz.API.Entities.Abstract;
+using tasinmaz.API.Models;
 
 namespace tasinmaz.API.Data
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : class, IEntity, new()
+    public class LocationRepository<T> : ILocationRepository<T> where T : class, IEntity, new()
     {
         DataContext _context;
-        public GenericRepository(DataContext context)
+
+        public LocationRepository(DataContext context)
         {
             _context = context;
         }
@@ -19,10 +21,14 @@ namespace tasinmaz.API.Data
         {
             return await _context.Set<T>().FirstOrDefaultAsync(filter);
         }
-
-        public async Task<ICollection<T>> GetAllAsync(Expression<Func<T, bool>> filter = null)
+        public async Task<ICollection<T>> GetAll()
         {
-            return filter == null ? await _context.Set<T>().ToListAsync() : await _context.Set<T>().Where(filter).ToListAsync();
+            return await _context.Set<T>().ToListAsync();
+        }
+
+        public async Task<ICollection<T>> GetById(Expression<Func<T, bool>> filter)
+        {
+            return await _context.Set<T>().Where(filter).ToListAsync();
         }
 
         public async Task<bool> Exists(Expression<Func<T, bool>> filter)

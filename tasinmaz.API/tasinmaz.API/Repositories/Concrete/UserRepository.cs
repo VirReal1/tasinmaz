@@ -86,8 +86,8 @@ namespace tasinmaz.API.Data
             CreatePasswordHash(kullaniciForAddUpdateDto.Password, out passwordHash, out passwordSalt);
             kullaniciForAddUpdateDto.PasswordHash = passwordHash;
             kullaniciForAddUpdateDto.PasswordSalt = passwordSalt;
+
             var addedUser = await _context.Kullanicilar.AddAsync(_mapper.Map<Kullanici>(kullaniciForAddUpdateDto));
-            addedUser.State = EntityState.Added;
             return await SaveChanges();
         }
         public async Task<bool> UpdateAsync(KullaniciForAddUpdateDto kullaniciForAddUpdateDto)
@@ -96,16 +96,15 @@ namespace tasinmaz.API.Data
             CreatePasswordHash(kullaniciForAddUpdateDto.Password, out passwordHash, out passwordSalt);
             kullaniciForAddUpdateDto.PasswordHash = passwordHash;
             kullaniciForAddUpdateDto.PasswordSalt = passwordSalt;
+
             _context.ChangeTracker.Clear();
             var updatedUser = _context.Kullanicilar.Update(_mapper.Map<Kullanici>(kullaniciForAddUpdateDto));
-            updatedUser.State = EntityState.Modified;
             return await SaveChanges();
         }
 
         public async Task<bool> DeleteAsync(Kullanici kullanici)
         {
             var deletedUser = _context.Kullanicilar.Remove(kullanici);
-            deletedUser.State = EntityState.Deleted;
             return await SaveChanges();
         }
 

@@ -28,7 +28,7 @@ namespace tasinmaz.API.Controllers
         {
             var allTasinmazlar = await _tasinmazService.GetAllAsync();
 
-            if (allTasinmazlar.Warning)
+            if (allTasinmazlar.Error)
             {
                 ModelState.AddModelError("", allTasinmazlar.Message);
                 return StatusCode(500, ModelState);

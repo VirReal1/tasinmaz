@@ -25,7 +25,7 @@ namespace tasinmaz.API.Controllers
         {
             var allLoglar = await _logService.GetAllAsync();
 
-            if (allLoglar.Warning)
+            if (allLoglar.Error)
             {
                 ModelState.AddModelError("", allLoglar.Message);
                 return StatusCode(500, ModelState);

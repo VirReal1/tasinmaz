@@ -331,7 +331,7 @@ namespace tasinmaz.API.Services.Concrete
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Silme";
-                    log.Aciklama = $"Açıklama: \"Taşınmaz: \"{tasinmazDto}\" veri tabanından silinirken bir hata oluştu.\" - Veri: \"Veri yok.\"";
+                    log.Aciklama = $"Açıklama: \"Taşınmaz: \"{tasinmazDto.Adi}\" veri tabanından silinirken bir hata oluştu.\" - Veri: \"Veri yok.\"";
                     await _logService.AddAsync(log);
                     return response;
                 }

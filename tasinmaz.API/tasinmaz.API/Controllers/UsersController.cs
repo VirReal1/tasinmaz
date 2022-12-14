@@ -40,7 +40,7 @@ namespace tasinmaz.API.Controllers
         {
             var allUsers = await _userService.GetAllAsync();
 
-            if (allUsers.Warning)
+            if (allUsers.Error)
             {
                 ModelState.AddModelError("", allUsers.Message);
                 return StatusCode(500, ModelState);
