@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -21,12 +22,14 @@ namespace tasinmaz.API.Data
         DataContext _context;
         IMapper _mapper;
         IConfiguration _configuration;
+        IHttpContextAccessor _httpContextAccessor;
 
-        public UserRepository(DataContext context, IMapper mapper, IConfiguration configuration)
+        public UserRepository(DataContext context, IMapper mapper, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _mapper = mapper;
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
         public async Task<Kullanici> Get(Expression<Func<Kullanici, bool>> filter)
         {
@@ -80,17 +83,17 @@ namespace tasinmaz.API.Data
             return kullaniciToken;
         }
 
-        public async Task<bool> AddAsync(KullaniciForAddUpdateDto kullaniciForAddUpdateDto)
+        public async Task<bool> AddAsync(KullaniciForUpdateDto kullaniciForAddUpdateDto)
         {
             byte[] passwordHash, passwordSalt;
             CreatePasswordHash(kullaniciForAddUpdateDto.Password, out passwordHash, out passwordSalt);
             kullaniciForAddUpdateDto.PasswordHash = passwordHash;
             kullaniciForAddUpdateDto.PasswordSalt = passwordSalt;
 
-            var addedUser = await _context.Kullanicilar.AddAsync(_mapper.Map<Kullanici>(kullaniciForAddUpdateDto));
+            await _context.Kullanicilar.AddAsync(_mapper.Map<Kullanici>(kullaniciForAddUpdateDto));
             return await SaveChanges();
         }
-        public async Task<bool> UpdateAsync(KullaniciForAddUpdateDto kullaniciForAddUpdateDto)
+        public async Task<bool> UpdateAsync(KullaniciForUpdateDto kullaniciForAddUpdateDto)
         {
             byte[] passwordHash, passwordSalt;
             CreatePasswordHash(kullaniciForAddUpdateDto.Password, out passwordHash, out passwordSalt);
@@ -98,13 +101,13 @@ namespace tasinmaz.API.Data
             kullaniciForAddUpdateDto.PasswordSalt = passwordSalt;
 
             _context.ChangeTracker.Clear();
-            var updatedUser = _context.Kullanicilar.Update(_mapper.Map<Kullanici>(kullaniciForAddUpdateDto));
+            _context.Kullanicilar.Update(_mapper.Map<Kullanici>(kullaniciForAddUpdateDto));
             return await SaveChanges();
         }
 
         public async Task<bool> DeleteAsync(Kullanici kullanici)
         {
-            var deletedUser = _context.Kullanicilar.Remove(kullanici);
+            _context.Kullanicilar.Remove(kullanici);
             return await SaveChanges();
         }
 

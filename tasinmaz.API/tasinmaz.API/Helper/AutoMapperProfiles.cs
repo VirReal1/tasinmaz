@@ -12,10 +12,10 @@ namespace tasinmaz.API.Helpers
         public AutoMapperProfiles()
         {
             CreateMap<Tasinmaz, TasinmazDto>().ReverseMap();
+            CreateMap<Kullanici, KullaniciForShowDto>().ReverseMap();
+            CreateMap<KullaniciForUpdateDto, KullaniciForShowDto>();
+            CreateMap<Kullanici, KullaniciForUpdateDto>().ReverseMap();
             CreateMap<Log, LogDto>();
-            CreateMap<Kullanici, KullaniciForShowDeleteDto>();
-            CreateMap<KullaniciForAddUpdateDto, Kullanici>().ReverseMap();
-            CreateMap<KullaniciForShowDeleteDto, Kullanici>();
         }
     }
 }

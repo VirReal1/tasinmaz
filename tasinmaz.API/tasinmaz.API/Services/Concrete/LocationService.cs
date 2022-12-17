@@ -37,7 +37,6 @@ namespace tasinmaz.API.Services.Concrete
         public async Task<ServiceResponse<List<Il>>> GetIllerAsync()
         {
             ServiceResponse<List<Il>> response = new ServiceResponse<List<Il>>();
-            Log log = new Log();
 
             try
             {
@@ -46,13 +45,6 @@ namespace tasinmaz.API.Services.Concrete
                 response.Process = "Iller";
                 response.Message = "Bütün iller getirildi.";
                 response.Data = illerAllList.ToList();
-
-                log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                log.Tarih = DateTime.Now;
-                log.Durum = "Başarılı";
-                log.Islem = "Getirme";
-                log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"{JsonConvert.SerializeObject(response.Data)}\"";
-                await _logService.AddAsync(log);
             }
             catch (Exception e)
             {
@@ -61,13 +53,6 @@ namespace tasinmaz.API.Services.Concrete
                 response.Error = true;
                 response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
-
-                log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                log.Tarih = DateTime.Now;
-                log.Durum = "Başarısız";
-                log.Islem = "Getirme";
-                log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
-                await _logService.AddAsync(log);
             }
             return response;
         }
@@ -75,7 +60,6 @@ namespace tasinmaz.API.Services.Concrete
         public async Task<ServiceResponse<List<Ilce>>> GetIlceByIlIdAsync(int ilId, int kullaniciId)
         {
             ServiceResponse<List<Ilce>> response = new ServiceResponse<List<Ilce>>();
-            Log log = new Log();
 
             try
             {
@@ -87,27 +71,11 @@ namespace tasinmaz.API.Services.Concrete
                     response.Message = "Ile bağlı ilçeler veri tabanında bulunamadı.";
                     response.Warning = true;
                     response.Data = null;
-
-                    log.KullaniciId = kullaniciId;
-                    log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                    log.Tarih = DateTime.Now;
-                    log.Durum = "Başarısız";
-                    log.Islem = "Getirme";
-                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"Veri yok.\"";
-                    await _logService.AddAsync(log);
                     return response;
                 }
                 response.Process = "Ilçeler";
                 response.Message = "Ilçeler başarıyla getirildi.";
                 response.Data = ilceList.ToList();
-
-                log.KullaniciId = kullaniciId;
-                log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                log.Tarih = DateTime.Now;
-                log.Durum = "Başarılı";
-                log.Islem = "Arama";
-                log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"{JsonConvert.SerializeObject(response.Data)}\"";
-                await _logService.AddAsync(log);
             }
             catch (Exception e)
             {
@@ -116,14 +84,6 @@ namespace tasinmaz.API.Services.Concrete
                 response.Error = true;
                 response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
-
-                log.KullaniciId = kullaniciId;
-                log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                log.Tarih = DateTime.Now;
-                log.Durum = "Başarısız";
-                log.Islem = "Arama";
-                log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
-                await _logService.AddAsync(log);
             }
 
             return response;
@@ -132,7 +92,6 @@ namespace tasinmaz.API.Services.Concrete
         public async Task<ServiceResponse<List<Mahalle>>> GetMahalleByIlceIdAsync(int ilceId, int kullaniciId)
         {
             ServiceResponse<List<Mahalle>> response = new ServiceResponse<List<Mahalle>>();
-            Log log = new Log();
 
             try
             {
@@ -144,27 +103,11 @@ namespace tasinmaz.API.Services.Concrete
                     response.Message = "Ilceye bağlı mahalleler veri tabanında bulunamadı.";
                     response.Warning = true;
                     response.Data = null;
-
-                    log.KullaniciId = kullaniciId;
-                    log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                    log.Tarih = DateTime.Now;
-                    log.Durum = "Başarısız";
-                    log.Islem = "Getirme";
-                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"Veri yok.\"";
-                    await _logService.AddAsync(log);
                     return response;
                 }
                 response.Process = "Mahalleler";
                 response.Message = "Mahalleler başarıyla getirildi.";
                 response.Data = ilceList.ToList();
-
-                log.KullaniciId = kullaniciId;
-                log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                log.Tarih = DateTime.Now;
-                log.Durum = "Başarılı";
-                log.Islem = "Arama";
-                log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"{JsonConvert.SerializeObject(response.Data)}\"";
-                await _logService.AddAsync(log);
             }
             catch (Exception e)
             {
@@ -173,14 +116,6 @@ namespace tasinmaz.API.Services.Concrete
                 response.Error = true;
                 response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
-
-                log.KullaniciId = kullaniciId;
-                log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
-                log.Tarih = DateTime.Now;
-                log.Durum = "Başarısız";
-                log.Islem = "Arama";
-                log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
-                await _logService.AddAsync(log);
             }
 
             return response;

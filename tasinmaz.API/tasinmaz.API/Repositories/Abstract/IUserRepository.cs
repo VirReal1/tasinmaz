@@ -14,8 +14,8 @@ namespace tasinmaz.API.Data
         Task<ICollection<Kullanici>> GetAllAsync(Expression<Func<Kullanici, bool>> filter = null);
         Task<bool> Exists(Expression<Func<Kullanici, bool>> filter);
         Task<KullaniciToken> LoginUserAsync(KullaniciForLoginDto kullaniciForLoginDto);
-        Task<bool> AddAsync(KullaniciForAddUpdateDto kullaniciForAddUpdateDto);
-        Task<bool> UpdateAsync(KullaniciForAddUpdateDto kullaniciForAddUpdateDto);
+        Task<bool> AddAsync(KullaniciForUpdateDto kullaniciForAddUpdateDto);
+        Task<bool> UpdateAsync(KullaniciForUpdateDto kullaniciForAddUpdateDto);
         Task<bool> DeleteAsync(Kullanici kullanici);
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -33,7 +34,6 @@ namespace tasinmaz.API
             services.AddControllers().AddNewtonsoftJson();
             services.AddDbContext<DataContext>(x => x.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
             services.AddAutoMapper();
-            services.AddHttpContextAccessor();
             services.AddCors(opt =>
             {
                 opt.AddDefaultPolicy(builder =>
@@ -41,6 +41,7 @@ namespace tasinmaz.API
                     builder.AllowAnyOrigin();
                 });
             });
+            services.AddHttpContextAccessor();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ITasinmazRepository, TasinmazRepository>();
@@ -75,6 +76,7 @@ namespace tasinmaz.API
             {
                 endpoints.MapControllers();
             });
+
         }
     }
 }

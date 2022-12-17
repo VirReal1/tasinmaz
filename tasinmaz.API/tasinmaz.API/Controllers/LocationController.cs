@@ -20,17 +20,9 @@ namespace tasinmaz.API.Controllers
         }
 
         [HttpGet("il")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Il>))]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> GetAll()
         {
             var allIller = await _locationService.GetIllerAsync();
-
-            if (allIller.Error)
-            {
-                ModelState.AddModelError("", allIller.Message);
-                return StatusCode(500, ModelState);
-            }
 
             return Ok(allIller);
         }
@@ -43,18 +35,6 @@ namespace tasinmaz.API.Controllers
         {
             var ilceler = await _locationService.GetIlceByIlIdAsync(ilId, kullaniciId);
 
-            if (ilceler.Warning)
-            {
-                ModelState.AddModelError("", ilceler.Message);
-                return StatusCode(404, ModelState);
-            }
-
-            if (ilceler.Error)
-            {
-                ModelState.AddModelError("", ilceler.Message);
-                return StatusCode(500, ModelState);
-            }
-
             return Ok(ilceler);
         }
 
@@ -65,18 +45,6 @@ namespace tasinmaz.API.Controllers
         public async Task<ActionResult> GetMahalleByIlceId(int ilceId, int kullaniciId)
         {
             var mahalleler = await _locationService.GetMahalleByIlceIdAsync(ilceId, kullaniciId);
-
-            if (mahalleler.Warning)
-            {
-                ModelState.AddModelError("", mahalleler.Message);
-                return StatusCode(404, ModelState);
-            }
-
-            if (mahalleler.Error)
-            {
-                ModelState.AddModelError("", mahalleler.Message);
-                return StatusCode(500, ModelState);
-            }
 
             return Ok(mahalleler);
         }

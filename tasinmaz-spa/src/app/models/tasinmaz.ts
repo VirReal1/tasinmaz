@@ -1,4 +1,4 @@
-export class Tasinmaz{
+export class Tasinmaz {
   id: number;
   adi: string;
   ilAdi: string;
@@ -8,5 +8,6 @@ export class Tasinmaz{
   parsel: string;
   nitelik: string;
   koordinatBilgileri: string;
-  kullaniciId: number
+  kullaniciId: number;
+  logKullaniciId: number;
 }

@@ -8,11 +8,11 @@ namespace tasinmaz.API.Services.Abstract
 {
     public interface IUserService
     {
-        Task<ServiceResponse<List<KullaniciForShowDeleteDto>>> GetAllAsync();
-        Task<ServiceResponse<List<KullaniciForShowDeleteDto>>> GetUsersAsync(KullaniciForShowDeleteDto kullaniciForShowDto);
+        Task<ServiceResponse<List<KullaniciForShowDto>>> GetAllAsync(int logKullaniciId);
+        Task<ServiceResponse<List<KullaniciForShowDto>>> GetUsersAsync(KullaniciForShowDto kullaniciForShowDto);
         Task<ServiceResponse<KullaniciToken>> LoginUserAsync(KullaniciForLoginDto kullaniciForLoginDto);
-        Task<ServiceResponse<KullaniciForShowDeleteDto>> AddUserAsync(KullaniciForAddUpdateDto kullaniciForAddDto);
-        Task<ServiceResponse<KullaniciForShowDeleteDto>> UpdateUserAsync(KullaniciForAddUpdateDto kullaniciForUpdateDto);
-        Task<ServiceResponse<KullaniciForShowDeleteDto>> DeleteUserAsync(KullaniciForShowDeleteDto kullaniciForDeleteDto);
+        Task<ServiceResponse<KullaniciForShowDto>> AddUserAsync(KullaniciForUpdateDto kullaniciForAddDto);
+        Task<ServiceResponse<KullaniciForShowDto>> UpdateUserAsync(KullaniciForUpdateDto kullaniciForUpdateDto);
+        Task<ServiceResponse<KullaniciForShowDto>> DeleteUserAsync(KullaniciForShowDto kullaniciForDeleteDto);
     }
 }

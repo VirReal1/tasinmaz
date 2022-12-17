@@ -16,5 +16,6 @@ namespace tasinmaz.API.Dtos.Tasinmaz
         public string Nitelik { get; set; }
         public string KoordinatBilgileri { get; set; }
         public int KullaniciId { get; set; }
+        public int LogKullaniciId { get; set; }
     }
 }

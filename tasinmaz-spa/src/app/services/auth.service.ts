@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { JwtHelper, tokenNotExpired } from 'angular2-jwt';
 import { LoginKullanici } from '../models/loginKullanici';
-import { RegisterKullanici } from '../models/registerKullanici';
 import { AlertifyService } from './alertify.service';
 
 @Injectable({
@@ -11,45 +10,44 @@ import { AlertifyService } from './alertify.service';
 })
 export class AuthService {
   constructor(private http: HttpClient, private router: Router, private alertifyService: AlertifyService) {}
-  path = 'https://localhost:44343/api/users/';
-  jwtHelper: JwtHelper = new JwtHelper();
-  TOKEN_KEY = 'token';
+  private path = 'https://localhost:44343/api/users/';
+  private TOKEN_KEY = 'token';
+  private ADMIN_KEY = 'adminMi';
+  private KULLANICIID_KEY = 'kullaniciId';
 
   login(loginKullanici: LoginKullanici) {
-    let headers = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json');
-    this.http.post(this.path + 'login', loginKullanici, { headers: headers, responseType: 'text' }).subscribe((data) => {
-      this.saveToken(data);
-      this.alertifyService.success('Successfully logged in.');
-      this.router.navigateByUrl('/tasinmazlar');
+    this.http.post(this.path + 'login', loginKullanici).subscribe((data) => {
+      if (data['warning']) {
+        this.alertifyService.warning(data['message']);
+      } else if (data['error']) {
+        this.alertifyService.error(data['message']);
+      } else {
+        localStorage.setItem(this.ADMIN_KEY, data['data'].adminMi);
+        localStorage.setItem(this.KULLANICIID_KEY, data['data'].id);
+        localStorage.setItem(this.TOKEN_KEY, data['data'].token);
+        this.alertifyService.success(data['message']);
+        this.router.navigateByUrl('/tasinmazlar');
+      }
     });
   }
 
-  register(registerKullanici: RegisterKullanici) {
-    let headers = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json');
-    this.http.post(this.path + 'register', registerKullanici, { headers: headers, responseType: 'text' }).subscribe((data) => {});
-  }
-  saveToken(token) {
-    localStorage.setItem(this.TOKEN_KEY, token);
-  }
-
   logout() {
+    localStorage.removeItem(this.ADMIN_KEY);
+    localStorage.removeItem(this.KULLANICIID_KEY);
     localStorage.removeItem(this.TOKEN_KEY);
     this.router.navigateByUrl('/login');
-    this.alertifyService.success('Successfully logged out.');
+    this.alertifyService.success('Çıkış başarılı.');
   }
 
   loggedIn() {
     return tokenNotExpired(this.TOKEN_KEY);
   }
 
-  get adminMi(){
-    if (JSON.parse(localStorage.getItem('token')).adminMi === true) {
-      return true;
-    }
-    else{
-      return false;
-    }
-  };
+  get adminMi(): boolean {
+    return JSON.parse(localStorage.getItem(this.ADMIN_KEY));
+  }
+
+  get kullaniciId() {
+    return JSON.parse(localStorage.getItem(this.KULLANICIID_KEY));
+  }
 }

@@ -1,3 +1,64 @@
-<p>
-  tasinmaz works!
-</p>
+<div *ngIf="!editPressed; else editComponent" class="container grid">
+  <div class="row mt-5">
+    <div class="table-responsive">
+      <form [formGroup]="searchForm" (ngSubmit)="searchTasinmazlar()">
+        <table class="table mt-3 table-hover table-bordered table-responsive">
+          <thead class="borderless text-center">
+            <tr class="borderless-row form-group">
+              <th scope="col"><button type="submit" class="btn btn-md btn-primary btn-block">Ara</button></th>
+              <th scope="col"><input type="number" formControlName="id" class="form-control" id="id" placeholder="#" /></th>
+              <th scope="col"><input type="text" formControlName="adi" class="form-control" id="adi" placeholder="Adı" /></th>
+              <th scope="col"><input type="text" formControlName="ilAdi" class="form-control" id="ilAdi" placeholder="İl Adı" /></th>
+              <th scope="col"><input type="text" formControlName="ilceAdi" class="form-control" id="ilceAdi" placeholder="İlçe Adı" /></th>
+              <th scope="col"><input type="text" formControlName="mahalleAdi" class="form-control" id="mahalleAdi" placeholder="Mahalle Adı" /></th>
+              <th scope="col"><input type="text" formControlName="ada" class="form-control" id="ada" placeholder="Ada" /></th>
+              <th scope="col"><input type="text" formControlName="parsel" class="form-control" id="parsel" placeholder="Parsel" /></th>
+              <th scope="col"><input type="text" formControlName="nitelik" class="form-control" id="nitelik" placeholder="Nitelik" /></th>
+              <th scope="col"><input type="text" formControlName="koordinatBilgileri" class="form-control" id="koordinatBilgileri" placeholder="Koordinat" /></th>
+              <th *ngIf="adminMi()" scope="col"><input type="number" formControlName="kullaniciId" class="form-control" id="kullaniciId" placeholder="Kullanıcı Id" /></th>
+            </tr>
+          </thead>
+          <thead class="text-center">
+            <tr>
+              <th scope="col">Seçenekler</th>
+              <th scope="col">#</th>
+              <th scope="col">Adı</th>
+              <th scope="col">İl Adı</th>
+              <th scope="col">İlçe Adı</th>
+              <th scope="col">Mahalle Adı</th>
+              <th scope="col">Ada</th>
+              <th scope="col">Parsel</th>
+              <th scope="col">Nitelik</th>
+              <th scope="col">Koordinat</th>
+              <th *ngIf="adminMi()" scope="col">Kullanıcı Id</th>
+            </tr>
+          </thead>
+          <tbody class="text-center">
+            <tr *ngFor="let tasinmaz of tasinmazlar">
+              <th class="text-center">
+                <i class="btn fas fa-edit" aria-hidden="true" (click)="editTasinmaz(tasinmaz)"></i>
+                <i class="btn fas fa-trash" style="padding-left: 0.5rem;" aria-hidden="true" (click)="deleteTasinmaz(tasinmaz)"></i>
+              </th>
+              <th scope="row">{{tasinmaz.id}}</th>
+              <td>{{tasinmaz.adi}}</td>
+              <td>{{tasinmaz.ilAdi}}</td>
+              <td>{{tasinmaz.ilceAdi}}</td>
+              <td>{{tasinmaz.mahalleAdi}}</td>
+              <td>{{tasinmaz.ada}}</td>
+              <td>{{tasinmaz.parsel}}</td>
+              <td>{{tasinmaz.nitelik}}</td>
+              <td>{{tasinmaz.koordinatBilgileri}}</td>
+              <td *ngIf="adminMi()">{{tasinmaz.kullaniciId}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </div>
+  </div>
+  <div class="row mt-1">
+    <a class="btn btn-success" type="button" style="margin-left: 1rem; max-width: fit-content;" (click)="editTasinmaz(null)">Taşınmaz Ekle</a>
+  </div>
+</div>
+<ng-template #editComponent>
+  <app-tasinmaz-edit [editParameters]="tasinmazEditData" (toTasinmazPage)="toTasinmazPage($event)" (goBack)="goBack()"></app-tasinmaz-edit>
+</ng-template>

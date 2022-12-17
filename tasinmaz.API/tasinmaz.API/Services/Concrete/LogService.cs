@@ -59,9 +59,6 @@ namespace tasinmaz.API.Services.Concrete
 
             try
             {
-                var logAllList = await _logRepository.GetAllAsync();
-                var logDtoAllList = new List<LogDto>();
-
                 var logList = await _logRepository.GetAllAsync(x =>
                     (x.KullaniciIp.Contains(logDto.KullaniciIp, StringComparison.InvariantCultureIgnoreCase) || logDto.KullaniciIp == null) &&
                     (x.Tarih.ToString().Contains(logDto.Tarih.ToString(), StringComparison.InvariantCultureIgnoreCase) || logDto.Tarih == null) &&
@@ -70,17 +67,12 @@ namespace tasinmaz.API.Services.Concrete
                     (x.Aciklama.Contains(logDto.Aciklama, StringComparison.InvariantCultureIgnoreCase) || logDto.Aciklama == null) &&
                     (x.Kullanici.Id.ToString().Contains(logDto.KullaniciId.ToString(), StringComparison.InvariantCultureIgnoreCase) || logDto.KullaniciId == default));
 
-                foreach (var item in logAllList)
-                {
-                    logDtoAllList.Add(_mapper.Map<LogDto>(item));
-                }
-
                 if (logList == null)
                 {
                     response.Process = "Loglar";
                     response.Message = "Arama parametreleri veri tabanıyla eşleşmedi.";
                     response.Warning = true;
-                    response.Data = logDtoAllList;
+                    response.Data = null;
                     return response;
                 }
                 response.Process = "Loglar";
@@ -98,12 +90,11 @@ namespace tasinmaz.API.Services.Concrete
             return response;
         }
 
-        public async Task<ServiceResponse<LogDto>> AddAsync(Log log)
+        public async Task<ServiceResponse<LogDto>> AddLogAsync(Log log)
         {
             ServiceResponse<LogDto> response = new ServiceResponse<LogDto>();
             try
             {
-                
                 if (!await _logRepository.AddAsync(log))
                 {
                     response.Process = "Loglar";

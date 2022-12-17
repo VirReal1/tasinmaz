@@ -29,31 +29,32 @@ namespace tasinmaz.API.Services.Concrete
             _mapper = mapper;
             _logService = logService;
         }
-        public async Task<ServiceResponse<List<KullaniciForShowDeleteDto>>> GetAllAsync()
+        public async Task<ServiceResponse<List<KullaniciForShowDto>>> GetAllAsync(int logKullaniciId)
         {
-            ServiceResponse<List<KullaniciForShowDeleteDto>> response = new ServiceResponse<List<KullaniciForShowDeleteDto>>();
+            ServiceResponse<List<KullaniciForShowDto>> response = new ServiceResponse<List<KullaniciForShowDto>>();
             Log log = new Log();
 
             try
             {
                 var usersAllList = await _userRepository.GetAllAsync();
-                var usersDtoAllList = new List<KullaniciForShowDeleteDto>();
+                var usersDtoAllList = new List<KullaniciForShowDto>();
 
                 foreach (var item in usersAllList)
                 {
-                    usersDtoAllList.Add(_mapper.Map<KullaniciForShowDeleteDto>(item));
+                    usersDtoAllList.Add(_mapper.Map<KullaniciForShowDto>(item));
                 }
 
                 response.Process = "Kullanıcılar";
                 response.Message = "Bütün kullanıcılar getirildi.";
                 response.Data = usersDtoAllList;
 
+                log.KullaniciId = logKullaniciId;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarılı";
                 log.Islem = "Getirme";
                 log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"{JsonConvert.SerializeObject(response.Data)}\"";
-                await _logService.AddAsync(log);
+                await _logService.AddLogAsync(log);
             }
             catch (Exception e)
             {
@@ -63,64 +64,58 @@ namespace tasinmaz.API.Services.Concrete
                 response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
 
+                log.KullaniciId = logKullaniciId;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarısız";
                 log.Islem = "Getirme";
                 log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
-                await _logService.AddAsync(log);
+                await _logService.AddLogAsync(log);
             }
             return response;
         }
 
-        public async Task<ServiceResponse<List<KullaniciForShowDeleteDto>>> GetUsersAsync(KullaniciForShowDeleteDto kullaniciForShowDto)
+        public async Task<ServiceResponse<List<KullaniciForShowDto>>> GetUsersAsync(KullaniciForShowDto kullaniciForShowDto)
         {
-            ServiceResponse<List<KullaniciForShowDeleteDto>> response = new ServiceResponse<List<KullaniciForShowDeleteDto>>();
+            ServiceResponse<List<KullaniciForShowDto>> response = new ServiceResponse<List<KullaniciForShowDto>>();
             Log log = new Log();
 
             try
             {
-                var usersAllList = await _userRepository.GetAllAsync();
-                var usersDtoAllList = new List<KullaniciForShowDeleteDto>();
                 var usersList = await _userRepository.GetAllAsync(x =>
                     (kullaniciForShowDto.Id == default || x.Id.ToString().ToLower().Contains(kullaniciForShowDto.Id.ToString().ToLower())) &&
                     (kullaniciForShowDto.Ad == null || x.Ad.ToLower().Contains(kullaniciForShowDto.Ad.ToLower())) &&
                     (kullaniciForShowDto.Soyad == null || x.Soyad.ToLower().Contains(kullaniciForShowDto.Soyad.ToLower())) &&
                     (kullaniciForShowDto.Email == null || x.Email.ToLower().Contains(kullaniciForShowDto.Email.ToLower())) &&
-                    (x.AdminMi == kullaniciForShowDto.AdminMi));
-
-                foreach (var item in usersAllList)
-                {
-                    usersDtoAllList.Add(_mapper.Map<KullaniciForShowDeleteDto>(item));
-                }
+                    kullaniciForShowDto.SearchAdminMi == null || x.AdminMi == kullaniciForShowDto.SearchAdminMi);
 
                 if (usersList == null)
                 {
                     response.Process = "Kullanıcılar";
                     response.Message = "Arama parametreleri veri tabanıyla eşleşmedi.";
                     response.Warning = true;
-                    response.Data = usersDtoAllList;
+                    response.Data = null;
 
-                    log.KullaniciId = kullaniciForShowDto.Id;
+                    log.KullaniciId = kullaniciForShowDto.LogKullaniciId;
                     log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Arama";
                     log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"Veri yok.\"";
-                    await _logService.AddAsync(log);
+                    await _logService.AddLogAsync(log);
                     return response;
                 }
                 response.Process = "Kullanıcılar";
                 response.Message = "Kullanıcılar başarıyla filtrelendi.";
-                response.Data = _mapper.Map<List<KullaniciForShowDeleteDto>>(usersList);
+                response.Data = _mapper.Map<List<KullaniciForShowDto>>(usersList);
 
-                log.KullaniciId = kullaniciForShowDto.Id;
+                log.KullaniciId = kullaniciForShowDto.LogKullaniciId;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarılı";
                 log.Islem = "Arama";
                 log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"{JsonConvert.SerializeObject(response.Data)}\"";
-                await _logService.AddAsync(log);
+                await _logService.AddLogAsync(log);
             }
             catch (Exception e)
             {
@@ -130,13 +125,13 @@ namespace tasinmaz.API.Services.Concrete
                 response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
 
-                log.KullaniciId = kullaniciForShowDto.Id;
+                log.KullaniciId = kullaniciForShowDto.LogKullaniciId;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarısız";
                 log.Islem = "Arama";
                 log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
-                await _logService.AddAsync(log);
+                await _logService.AddLogAsync(log);
             }
             return response;
         }
@@ -162,7 +157,7 @@ namespace tasinmaz.API.Services.Concrete
                     log.Durum = "Başarısız";
                     log.Islem = "Giriş";
                     log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"Veri yok.\"";
-                    await _logService.AddAsync(log);
+                    await _logService.AddLogAsync(log);
                     return response;
                 }
                 response.Process = "Kullanıcılar";
@@ -175,7 +170,7 @@ namespace tasinmaz.API.Services.Concrete
                 log.Durum = "Başarılı";
                 log.Islem = "Giriş";
                 log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"{JsonConvert.SerializeObject(response.Data)}\"";
-                await _logService.AddAsync(log);
+                await _logService.AddLogAsync(log);
             }
             catch (Exception e)
             {
@@ -190,14 +185,14 @@ namespace tasinmaz.API.Services.Concrete
                 log.Durum = "Başarısız";
                 log.Islem = "Giriş";
                 log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
-                await _logService.AddAsync(log);
+                await _logService.AddLogAsync(log);
             }
             return response;
         }
 
-        public async Task<ServiceResponse<KullaniciForShowDeleteDto>> AddUserAsync(KullaniciForAddUpdateDto kullaniciForAddDto)
+        public async Task<ServiceResponse<KullaniciForShowDto>> AddUserAsync(KullaniciForUpdateDto kullaniciForAddDto)
         {
-            ServiceResponse<KullaniciForShowDeleteDto> response = new ServiceResponse<KullaniciForShowDeleteDto>();
+            ServiceResponse<KullaniciForShowDto> response = new ServiceResponse<KullaniciForShowDto>();
             Log log = new Log();
 
             try
@@ -210,13 +205,13 @@ namespace tasinmaz.API.Services.Concrete
                     response.Warning = true;
                     response.Data = null;
 
-                    log.KullaniciId = kullaniciForAddDto.Id;
+                    log.KullaniciId = kullaniciForAddDto.LogKullaniciId;
                     log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Yeni Kayıt";
                     log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"Veri yok.\"";
-                    await _logService.AddAsync(log);
+                    await _logService.AddLogAsync(log);
                     return response;
                 }
 
@@ -227,26 +222,26 @@ namespace tasinmaz.API.Services.Concrete
                     response.Error = true;
                     response.Data = null;
 
-                    log.KullaniciId = kullaniciForAddDto.Id;
+                    log.KullaniciId = kullaniciForAddDto.LogKullaniciId;
                     log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Yeni Kayıt";
                     log.Aciklama = $"Açıklama: \"Kullanıcı: {kullaniciForAddDto.Email} veri tabanına eklenirken bir hata oluştu.\" - Veri: \"Veri yok.\"";
-                    await _logService.AddAsync(log);
+                    await _logService.AddLogAsync(log);
                     return response;
                 }
                 response.Process = "Kullanıcılar";
                 response.Message = "Kullanıcı başarıyla eklendi.";
-                response.Data = _mapper.Map<KullaniciForShowDeleteDto>(kullaniciForAddDto);
+                response.Data = _mapper.Map<KullaniciForShowDto>(kullaniciForAddDto);
 
-                log.KullaniciId = kullaniciForAddDto.Id;
+                log.KullaniciId = kullaniciForAddDto.LogKullaniciId;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarılı";
                 log.Islem = "Yeni Kayıt";
                 log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"{JsonConvert.SerializeObject(response.Data)}\"";
-                await _logService.AddAsync(log);
+                await _logService.AddLogAsync(log);
             }
             catch (Exception e)
             {
@@ -256,19 +251,19 @@ namespace tasinmaz.API.Services.Concrete
                 response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
 
-                log.KullaniciId = kullaniciForAddDto.Id;
+                log.KullaniciId = kullaniciForAddDto.LogKullaniciId;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarısız";
                 log.Islem = "Yeni Kayıt";
                 log.Aciklama = $"Açıklama: \"Kullanıcı: \"{kullaniciForAddDto.Email}\" servis katmanında eklenirken bir hata oluştu.\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
-                await _logService.AddAsync(log);
+                await _logService.AddLogAsync(log);
             }
             return response;
         }
-        public async Task<ServiceResponse<KullaniciForShowDeleteDto>> UpdateUserAsync(KullaniciForAddUpdateDto kullaniciForUpdateDto)
+        public async Task<ServiceResponse<KullaniciForShowDto>> UpdateUserAsync(KullaniciForUpdateDto kullaniciForUpdateDto)
         {
-            ServiceResponse<KullaniciForShowDeleteDto> response = new ServiceResponse<KullaniciForShowDeleteDto>();
+            ServiceResponse<KullaniciForShowDto> response = new ServiceResponse<KullaniciForShowDto>();
             Log log = new Log();
 
             try
@@ -282,13 +277,13 @@ namespace tasinmaz.API.Services.Concrete
                     response.Warning = true;
                     response.Data = null;
 
-                    log.KullaniciId = kullaniciForUpdateDto.Id;
+                    log.KullaniciId = kullaniciForUpdateDto.LogKullaniciId;
                     log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Güncelleme";
                     log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"Veri yok.\"";
-                    await _logService.AddAsync(log);
+                    await _logService.AddLogAsync(log);
                     return response;
                 }
 
@@ -299,26 +294,26 @@ namespace tasinmaz.API.Services.Concrete
                     response.Error = true;
                     response.Data = null;
 
-                    log.KullaniciId = kullaniciForUpdateDto.Id;
+                    log.KullaniciId = kullaniciForUpdateDto.LogKullaniciId;
                     log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Güncelleme";
                     log.Aciklama = $"Açıklama: \"Kullanıcı: \"{kullaniciForUpdateDto.Email}\" veri tabanına güncellenirken bir hata oluştu.\" - Veri: \"Veri yok.\"";
-                    await _logService.AddAsync(log);
+                    await _logService.AddLogAsync(log);
                     return response;
                 }
                 response.Process = "Kullanıcılar";
                 response.Message = "Taşınmaz başarıyla güncellendi.";
-                response.Data = _mapper.Map<KullaniciForShowDeleteDto>(kullaniciForUpdateDto);
+                response.Data = _mapper.Map<KullaniciForShowDto>(kullaniciForUpdateDto);
 
-                log.KullaniciId = kullaniciForUpdateDto.Id;
+                log.KullaniciId = kullaniciForUpdateDto.LogKullaniciId;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarılı";
                 log.Islem = "Güncelleme";
                 log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"{JsonConvert.SerializeObject(response.Data)}\"";
-                await _logService.AddAsync(log);
+                await _logService.AddLogAsync(log);
             }
             catch (Exception e)
             {
@@ -328,20 +323,20 @@ namespace tasinmaz.API.Services.Concrete
                 response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
 
-                log.KullaniciId = kullaniciForUpdateDto.Id;
+                log.KullaniciId = kullaniciForUpdateDto.LogKullaniciId;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarısız";
                 log.Islem = "Güncelleme";
                 log.Aciklama = $"Açıklama: \"Kullanıcı: \"{kullaniciForUpdateDto.Email}\" servis katmanında güncellenirken bir hata oluştu.\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
-                await _logService.AddAsync(log);
+                await _logService.AddLogAsync(log);
             }
             return response;
         }
 
-        public async Task<ServiceResponse<KullaniciForShowDeleteDto>> DeleteUserAsync(KullaniciForShowDeleteDto kullaniciForDeleteDto)
+        public async Task<ServiceResponse<KullaniciForShowDto>> DeleteUserAsync(KullaniciForShowDto kullaniciForDeleteDto)
         {
-            ServiceResponse<KullaniciForShowDeleteDto> response = new ServiceResponse<KullaniciForShowDeleteDto>();
+            ServiceResponse<KullaniciForShowDto> response = new ServiceResponse<KullaniciForShowDto>();
             Log log = new Log();
 
             try
@@ -353,13 +348,13 @@ namespace tasinmaz.API.Services.Concrete
                     response.Warning = true;
                     response.Data = null;
 
-                    log.KullaniciId = kullaniciForDeleteDto.Id;
+                    log.KullaniciId = kullaniciForDeleteDto.LogKullaniciId;
                     log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Silme";
                     log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"Veri yok.\"";
-                    await _logService.AddAsync(log);
+                    await _logService.AddLogAsync(log);
                     return response;
                 }
 
@@ -370,26 +365,26 @@ namespace tasinmaz.API.Services.Concrete
                     response.Error = true;
                     response.Data = null;
 
-                    log.KullaniciId = kullaniciForDeleteDto.Id;
+                    log.KullaniciId = kullaniciForDeleteDto.LogKullaniciId;
                     log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Silme";
                     log.Aciklama = $"Açıklama: \"Kullanıcı: \"{kullaniciForDeleteDto.Email}\" veri tabanından silinirken bir hata oluştu.\" - Veri: \"Veri yok.\"";
-                    await _logService.AddAsync(log);
+                    await _logService.AddLogAsync(log);
                     return response;
                 }
                 response.Process = "Kullanıcılar";
                 response.Message = "Kullanıcı başarıyla silindi.";
                 response.Data = null;
 
-                log.KullaniciId = kullaniciForDeleteDto.Id;
+                log.KullaniciId = kullaniciForDeleteDto.LogKullaniciId;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarılı";
                 log.Islem = "Silme";
                 log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"{JsonConvert.SerializeObject(response.Data)}\"";
-                await _logService.AddAsync(log);
+                await _logService.AddLogAsync(log);
             }
             catch (Exception e)
             {
@@ -399,13 +394,13 @@ namespace tasinmaz.API.Services.Concrete
                 response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
 
-                log.KullaniciId = kullaniciForDeleteDto.Id;
+                log.KullaniciId = kullaniciForDeleteDto.LogKullaniciId;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarısız";
                 log.Islem = "Silme";
                 log.Aciklama = $"Açıklama: \"Kullanıcı: \"{kullaniciForDeleteDto.Email}\" servis katmanından silinirken bir hata oluştu.\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
-                await _logService.AddAsync(log);
+                await _logService.AddLogAsync(log);
             }
             return response;
         }
