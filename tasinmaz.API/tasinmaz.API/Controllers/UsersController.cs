@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 using tasinmaz.API.Data;
 using tasinmaz.API.Dtos;
 using tasinmaz.API.Dtos.Tasinmaz;
+using tasinmaz.API.Helpers;
 using tasinmaz.API.Models;
 using tasinmaz.API.Models.Concrete;
 using tasinmaz.API.Services.Abstract;
@@ -32,6 +34,7 @@ namespace tasinmaz.API.Controllers
         }
 
         [HttpGet("all/{logKullaniciId}")]
+        [Authorize(Policy = Policies.Admin)]
         public async Task<ActionResult> GetAll(int logKullaniciId)
         {
             var allUsers = await _userService.GetAllAsync(logKullaniciId);
@@ -40,14 +43,16 @@ namespace tasinmaz.API.Controllers
         }
 
         [HttpPost("search")]
+        [Authorize(Policy = Policies.Admin)]
         public async Task<ActionResult> GetBySearch([FromBody] KullaniciForShowDto kullaniciForShowDeleteDto)
         {
             var searchUsers = await _userService.GetUsersAsync(kullaniciForShowDeleteDto);
 
             return Ok(searchUsers);
         }
-
+        
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<ActionResult> Login([FromBody] KullaniciForLoginDto kullaniciForLoginDto)
         {
             var kullaniciToken = await _userService.LoginUserAsync(kullaniciForLoginDto);
@@ -56,6 +61,7 @@ namespace tasinmaz.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.Admin)]
         public async Task<ActionResult> Add([FromBody] KullaniciForUpdateDto kullaniciForAddUpdateDto)
         {
             var createUser = await _userService.AddUserAsync(kullaniciForAddUpdateDto);
@@ -64,6 +70,7 @@ namespace tasinmaz.API.Controllers
         }
 
         [HttpPut]
+        [Authorize(Policy = Policies.Admin)]
         public async Task<ActionResult> Update([FromBody] KullaniciForUpdateDto kullaniciForAddUpdateDto)
         {
             var updateUser = await _userService.UpdateUserAsync(kullaniciForAddUpdateDto);
@@ -72,6 +79,7 @@ namespace tasinmaz.API.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Policy = Policies.Admin)]
         public async Task<ActionResult> Delete([FromBody] KullaniciForShowDto kullaniciForShowDeleteDto)
         {
             var removeUser = await _userService.DeleteUserAsync(kullaniciForShowDeleteDto);

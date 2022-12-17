@@ -9,7 +9,7 @@ import { AlertifyService } from './alertify.service';
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(private http: HttpClient, private router: Router, private alertifyService: AlertifyService) {}
+  constructor(private jwtHelper: JwtHelper, private http: HttpClient, private router: Router, private alertifyService: AlertifyService) {}
   private path = 'https://localhost:44343/api/users/';
   private TOKEN_KEY = 'token';
   private ADMIN_KEY = 'adminMi';
@@ -25,6 +25,7 @@ export class AuthService {
         localStorage.setItem(this.ADMIN_KEY, data['data'].adminMi);
         localStorage.setItem(this.KULLANICIID_KEY, data['data'].id);
         localStorage.setItem(this.TOKEN_KEY, data['data'].token);
+        console.log(this.jwtHelper.decodeToken(data['data'].token.toString()));
         this.alertifyService.success(data['message']);
         this.router.navigateByUrl('/tasinmazlar');
       }

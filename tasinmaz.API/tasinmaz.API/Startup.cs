@@ -41,6 +41,11 @@ namespace tasinmaz.API
                     builder.AllowAnyOrigin();
                 });
             });
+            services.AddAuthorization(config =>
+            {
+                config.AddPolicy(Policies.Admin, Policies.AdminPolicy());
+                config.AddPolicy(Policies.User, Policies.UserPolicy());
+            });
             services.AddHttpContextAccessor();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserService, UserService>();
@@ -50,12 +55,17 @@ namespace tasinmaz.API
             services.AddScoped<ILogService, LogService>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
             {
+                opt.SaveToken = true;
                 opt.TokenValidationParameters = new TokenValidationParameters
                 {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
+                    ValidIssuer = Configuration["Jwt: Issuer"],
+                    ValidAudience = Configuration["Jwt: Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateActor = false
+                    ClockSkew = TimeSpan.Zero,
                 };
             });
         }
@@ -71,6 +81,7 @@ namespace tasinmaz.API
             app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {

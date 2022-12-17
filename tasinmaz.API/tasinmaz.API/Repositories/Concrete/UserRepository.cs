@@ -67,20 +67,19 @@ namespace tasinmaz.API.Data
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, kullanici.Id.ToString()),
-                    new Claim(ClaimTypes.Email, kullanici.Email)
+                    new Claim(ClaimTypes.Email, kullanici.Email),
+                    new Claim("role", kullanici.UserRole)
                 }),
                 Expires = DateTime.Now.AddHours(2),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature),
+                Issuer = _configuration["Jwt: Issuer"],
+                Audience = _configuration["Jwt: Audience"]
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
-            KullaniciToken kullaniciToken = new KullaniciToken
-            {
-                Token = tokenString, AdminMi = kullanici.AdminMi, Id = kullanici.Id
-            };
 
-            return kullaniciToken;
+            return tokenString;
         }
 
         public async Task<bool> AddAsync(KullaniciForUpdateDto kullaniciForAddUpdateDto)
