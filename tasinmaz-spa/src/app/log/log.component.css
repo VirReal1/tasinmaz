@@ -1,0 +1,21 @@
+.borderless-row {
+  border-left: Transparent !important;
+  border-right: Transparent !important;
+  border-top: Transparent !important;
+}
+
+.borderless-cell {
+  border-right: Transparent !important;
+  border-top: Transparent !important;
+  border-bottom: Transparent !important;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.scrollme {
+  overflow-x: auto;
+}

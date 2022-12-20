@@ -3,35 +3,42 @@
     <form [formGroup]="editForm" (ngSubmit)="editTasinmaz()">
       <div class="input-group mb-3">
         <span class="input-group-text text-right" id="inputGroup-sizing-default" style="width: 7rem;">Taşınmaz Adı</span>
-        <input type="text" class="form-control" aria-label="Sizing example input" formControlName="adi" aria-describedby="inputGroup-sizing-default" required autofocus/>
+        <input type="text" class="form-control" aria-label="Sizing example input" formControlName="adi" aria-describedby="inputGroup-sizing-default" required autofocus />
       </div>
       <div class="input-group mb-3">
-        <span class="input-group-text" id="inputGroup-sizing-default" style="width: 7rem;">İl Adı</span>
-        <input type="text" class="form-control" aria-label="Sizing example input" formControlName="ilAdi" aria-describedby="inputGroup-sizing-default" required/>
-      </div>
-      <div class="input-group mb-3">
-        <span class="input-group-text" id="ilceAdi" style="width: 7rem;">İlçe Adı</span>
-        <input type="text" class="form-control" aria-label="Sizing example input" formControlName="ilceAdi" aria-describedby="inputGroup-sizing-default" required/>
-      </div>
-      <div class="input-group mb-3">
-        <span class="input-group-text" id="inputGroup-sizing-default" style="width: 7rem;">Mahalle Adı</span>
-        <input type="text" class="form-control" aria-label="Sizing example input" formControlName="mahalleAdi" aria-describedby="inputGroup-sizing-default" required/>
+        <select class="form-select" formControlName="ilAdi" (ngModelChange)="getIlceler($event)" aria-label="Default select example">
+          <option [ngValue]="null" disabled selected>İl Seçiniz</option>
+          <option *ngFor="let il of iller" [ngValue]="il.adi">{{il.adi}}</option>
+        </select>
+        <select class="form-select" formControlName="ilceAdi" (change)="getMahalleler($event)" aria-label="Default select example">
+          <option [ngValue]="null" disabled selected>İlçe Seçiniz</option>
+          <option *ngFor="let ilce of ilceler" [ngValue]="ilce.adi">{{ilce.adi}}</option>
+        </select>
+        <select class="form-select" formControlName="mahalleAdi" aria-label="Default select example">
+          <option [ngValue]="null" disabled selected>Mahalle Seçiniz</option>
+          <option *ngFor="let mahalle of mahalleler" value="{{mahalle.adi}}">{{mahalle.adi}}</option>
+        </select>
       </div>
       <div class="input-group mb-3">
         <span class="input-group-text" id="inputGroup-sizing-default" style="width: 7rem;">Ada</span>
-        <input type="text" class="form-control" aria-label="Sizing example input" formControlName="ada" aria-describedby="inputGroup-sizing-default" required/>
+        <input type="text" class="form-control" aria-label="Sizing example input" formControlName="ada" aria-describedby="inputGroup-sizing-default" required />
       </div>
       <div class="input-group mb-3">
         <span class="input-group-text" id="inputGroup-sizing-default" style="width: 7rem;">Parsel</span>
-        <input type="text" class="form-control" aria-label="Sizing example input" formControlName="parsel" aria-describedby="inputGroup-sizing-default" required/>
+        <input type="text" class="form-control" aria-label="Sizing example input" formControlName="parsel" aria-describedby="inputGroup-sizing-default" required />
       </div>
       <div class="input-group mb-3">
         <span class="input-group-text" id="inputGroup-sizing-default" style="width: 7rem;">Nitelik</span>
-        <input type="text" class="form-control" aria-label="Sizing example input" formControlName="nitelik" aria-describedby="inputGroup-sizing-default" required/>
+        <select class="form-select" formControlName="nitelik" aria-label="Default select example" required>
+          <option [ngValue]="null" disabled selected>Lütfen nitelik seçiniz.</option>
+          <option value="Arsa">Arsa</option>
+          <option value="Tarla">Tarla</option>
+          <option value="Mesken">Mesken</option>
+        </select>
       </div>
       <div class="input-group mb-3">
         <span class="input-group-text" id="inputGroup-sizing-default" style="width: 7rem;">Koordinat</span>
-        <input type="text" class="form-control" aria-label="Sizing example input" formControlName="koordinatBilgileri" aria-describedby="inputGroup-sizing-default" required/>
+        <input type="text" class="form-control" aria-label="Sizing example input" formControlName="koordinatBilgileri" aria-describedby="inputGroup-sizing-default" required />
       </div>
       <div class="row">
         <div class="col-lg-4 col-md-4 col-sm-4" style="text-align: start;">
@@ -48,4 +55,3 @@
     <div id="ol-map" class="map-container"></div>
   </div>
 </div>
-

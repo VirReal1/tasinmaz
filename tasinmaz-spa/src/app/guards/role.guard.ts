@@ -13,7 +13,7 @@ export class RoleGuard implements CanActivate {
     if (userRole == Policies.AdminPolicy) {
       return true;
     }
-    this.router.navigateByUrl('tasinmazlar'); //If the user is not logged in, this will navigate the user to login page if he presses any admin site
+    this.router.navigateByUrl('tasinmazlar');
     return false;
   }
 }

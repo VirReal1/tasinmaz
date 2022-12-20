@@ -6,15 +6,20 @@ import Map from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
+import { Il } from 'src/app/models/il';
+import { Ilce } from 'src/app/models/ilce';
+import { Mahalle } from 'src/app/models/mahalle';
+import { LocationService } from 'src/app/services/location.service';
+import { AlertifyService } from 'src/app/services/alertify.service';
 
 @Component({
   selector: 'app-tasinmaz-edit',
   templateUrl: './tasinmaz-edit.component.html',
   styleUrls: ['./tasinmaz-edit.component.css'],
-  providers: [AuthService],
+  providers: [AuthService, LocationService],
 })
 export class TasinmazEditComponent implements OnInit {
-  constructor(private authService: AuthService, private formBuilder: FormBuilder) {}
+  constructor(private authService: AuthService, private locationService: LocationService, private alertifyService: AlertifyService, private formBuilder: FormBuilder) {}
 
   @Input() editParameters: Tasinmaz;
   @Output() toTasinmazPage = new EventEmitter();
@@ -23,6 +28,9 @@ export class TasinmazEditComponent implements OnInit {
   editForm: FormGroup;
   buttonAdi: string;
   map: Map;
+  iller: Il[];
+  ilceler: Ilce[];
+  mahalleler: Mahalle[];
 
   ngOnInit() {
     if (this.editParameters != null) {
@@ -30,7 +38,7 @@ export class TasinmazEditComponent implements OnInit {
     } else {
       this.createAddForm();
     }
-
+    this.getIller();
     this.createMap();
   }
 
@@ -90,6 +98,41 @@ export class TasinmazEditComponent implements OnInit {
 
       this.toTasinmazPage.emit(editTasinmazData);
     }
+  }
+
+  getIller() {
+    this.locationService.getIller().subscribe((data) => {
+      if (data['warning']) {
+        this.alertifyService.warning(data['message']);
+      } else if (data['error']) {
+        this.alertifyService.error(data['message']);
+      }
+      this.iller = data['data'];
+      this.mahalleler = null;
+    });
+  }
+
+  getIlceler() {
+    this.locationService.getIlceler(this.editForm.controls.ilAdi.value).subscribe((data) => {
+      if (data['warning']) {
+        this.alertifyService.warning(data['message']);
+      } else if (data['error']) {
+        this.alertifyService.error(data['message']);
+      }
+      this.ilceler = data['data'];
+    });
+  }
+
+  getMahalleler() {
+    console.log(this.editForm.controls.ilceAdi.value);
+    this.locationService.getMahalleler(this.editForm.controls.ilceAdi.value).subscribe((data) => {
+      if (data['warning']) {
+        this.alertifyService.warning(data['message']);
+      } else if (data['error']) {
+        this.alertifyService.error(data['message']);
+      }
+      this.mahalleler = data['data'];
+    });
   }
 
   goBackButton() {

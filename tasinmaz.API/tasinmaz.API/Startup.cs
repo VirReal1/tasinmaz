@@ -17,6 +17,7 @@ using Newtonsoft.Json;
 using tasinmaz.API.Helpers;
 using Microsoft.AspNetCore.Http;
 using System.Configuration;
+using tasinmaz.API.Models;
 
 namespace tasinmaz.API
 {
@@ -51,6 +52,11 @@ namespace tasinmaz.API
             services.AddScoped<ITasinmazService, TasinmazService>();
             services.AddScoped<ILogRepository, LogRepository>();
             services.AddScoped<ILogService, LogService>();
+            services.AddScoped<ILocationRepository<Il>, LocationRepository<Il>>();
+            services.AddScoped<ILocationRepository<Ilce>, LocationRepository<Ilce>>();
+            services.AddScoped<ILocationRepository<Mahalle>, LocationRepository<Mahalle>>();
+            services.AddScoped<ILocationService, LocationService>();
+            services.AddScoped<ILocationRepository<Il>, LocationRepository<Il>>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
             {

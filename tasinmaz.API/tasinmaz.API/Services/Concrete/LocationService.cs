@@ -22,16 +22,12 @@ namespace tasinmaz.API.Services.Concrete
         ILocationRepository<Il> _ilRepository;
         ILocationRepository<Ilce> _ilceRepository;
         ILocationRepository<Mahalle> _mahalleRepository;
-        IHttpContextAccessor _httpAccessor;
-        ILogService _logService;
 
-        public LocationService(ILocationRepository<Il> ilRepository, ILocationRepository<Ilce> ilceRepository, ILocationRepository<Mahalle> mahalleRepository, IHttpContextAccessor httpAccessor, ILogService logService)
+        public LocationService(ILocationRepository<Il> ilRepository, ILocationRepository<Ilce> ilceRepository, ILocationRepository<Mahalle> mahalleRepository)
         {
             _ilRepository = ilRepository;
             _ilceRepository = ilceRepository;
             _mahalleRepository = mahalleRepository;
-            _httpAccessor = httpAccessor;
-            _logService = logService;
         }
 
         public async Task<ServiceResponse<List<Il>>> GetIllerAsync()
@@ -41,6 +37,15 @@ namespace tasinmaz.API.Services.Concrete
             try
             {
                 var illerAllList = await _ilRepository.GetAll();
+
+                if (illerAllList.Count == 0)
+                {
+                    response.Process = "Iller";
+                    response.Message = "Iller veri tabanında bulunamadı.";
+                    response.Warning = true;
+                    response.Data = null;
+                    return response;
+                }
 
                 response.Process = "Iller";
                 response.Message = "Bütün iller getirildi.";
@@ -57,13 +62,14 @@ namespace tasinmaz.API.Services.Concrete
             return response;
         }
 
-        public async Task<ServiceResponse<List<Ilce>>> GetIlceByIlIdAsync(int ilId, int kullaniciId)
+        public async Task<ServiceResponse<List<Ilce>>> GetIlceByIlIdAsync(string ilAdi)
         {
             ServiceResponse<List<Ilce>> response = new ServiceResponse<List<Ilce>>();
 
             try
             {
-                var ilceList = await _ilceRepository.GetById(x => x.IlId == ilId);
+                var il = await _ilRepository.Get(x => x.Adi == ilAdi);
+                var ilceList = await _ilceRepository.GetById(x => x.IlId == il.Id);
 
                 if (ilceList == null)
                 {
@@ -89,13 +95,14 @@ namespace tasinmaz.API.Services.Concrete
             return response;
         }
 
-        public async Task<ServiceResponse<List<Mahalle>>> GetMahalleByIlceIdAsync(int ilceId, int kullaniciId)
+        public async Task<ServiceResponse<List<Mahalle>>> GetMahalleByIlceIdAsync(string ilceAdi)
         {
             ServiceResponse<List<Mahalle>> response = new ServiceResponse<List<Mahalle>>();
 
             try
             {
-                var ilceList = await _mahalleRepository.GetById(x => x.IlceId == ilceId);
+                var ilce = await _ilceRepository.Get(x => x.Adi == ilceAdi);
+                var ilceList = await _mahalleRepository.GetById(x => x.IlceId == ilce.Id);
 
                 if (ilceList == null)
                 {

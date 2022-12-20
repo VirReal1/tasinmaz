@@ -21,7 +21,7 @@ namespace tasinmaz.API.Controllers
             _logService = logService;
         }
 
-        [HttpGet]
+        [HttpGet("all")]
         //[Authorize(Policy = Policies.Admin)]
         public async Task<ActionResult> GetAll()
         {
