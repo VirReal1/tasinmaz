@@ -9,5 +9,4 @@ export class Tasinmaz {
   nitelik: string;
   koordinatBilgileri: string;
   kullaniciId: number;
-  logKullaniciId: number;
 }

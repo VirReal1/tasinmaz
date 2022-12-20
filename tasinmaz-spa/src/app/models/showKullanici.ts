@@ -1,9 +1,8 @@
-export class ShowDeleteKullanici {
+export class ShowKullanici {
   id: number;
   ad: string;
   soyad: string;
   email: string;
-  adminMi: boolean;
-  searchAdminMi: boolean | null;
+  userRole: string;
   logKullaniciId: number;
 }

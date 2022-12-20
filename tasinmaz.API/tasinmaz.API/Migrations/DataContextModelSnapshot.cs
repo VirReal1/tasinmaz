@@ -98,9 +98,6 @@ namespace tasinmaz.API.Migrations
                     b.Property<string>("Ad")
                         .HasColumnType("text");
 
-                    b.Property<bool>("AdminMi")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Email")
                         .HasColumnType("text");
 
@@ -111,6 +108,9 @@ namespace tasinmaz.API.Migrations
                         .HasColumnType("bytea");
 
                     b.Property<string>("Soyad")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserRole")
                         .HasColumnType("text");
 
                     b.HasKey("Id");

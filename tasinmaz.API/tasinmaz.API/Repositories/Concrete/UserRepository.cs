@@ -13,7 +13,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using tasinmaz.API.Dtos;
 using tasinmaz.API.Models;
-using tasinmaz.API.Models.Concrete;
 
 namespace tasinmaz.API.Data
 {
@@ -45,10 +44,10 @@ namespace tasinmaz.API.Data
             return await _context.Kullanicilar.AnyAsync(filter);
         }
 
-        public async Task<KullaniciToken> LoginUserAsync(KullaniciForLoginDto kullaniciForLoginDto)
+        public async Task<string[]> LoginUserAsync(KullaniciForLoginDto kullaniciForLoginDto)
         {
             var kullanici = await _context.Kullanicilar.FirstOrDefaultAsync(x => x.Email == kullaniciForLoginDto.Email);
-            
+
             if (kullanici == null)
             {
                 return null;
@@ -68,7 +67,7 @@ namespace tasinmaz.API.Data
                 {
                     new Claim(ClaimTypes.NameIdentifier, kullanici.Id.ToString()),
                     new Claim(ClaimTypes.Email, kullanici.Email),
-                    new Claim("role", kullanici.UserRole)
+                    new Claim(ClaimTypes.Role, kullanici.UserRole)
                 }),
                 Expires = DateTime.Now.AddHours(2),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature),
@@ -79,33 +78,34 @@ namespace tasinmaz.API.Data
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
 
-            return tokenString;
+            return new[] { tokenString, kullanici.Id.ToString() };
         }
 
-        public async Task<bool> AddAsync(KullaniciForUpdateDto kullaniciForAddUpdateDto)
+        public async Task<bool> AddAsync(KullaniciForAddDto kullaniciForAddDto)
         {
             byte[] passwordHash, passwordSalt;
-            CreatePasswordHash(kullaniciForAddUpdateDto.Password, out passwordHash, out passwordSalt);
-            kullaniciForAddUpdateDto.PasswordHash = passwordHash;
-            kullaniciForAddUpdateDto.PasswordSalt = passwordSalt;
+            CreatePasswordHash(kullaniciForAddDto.Password, out passwordHash, out passwordSalt);
+            kullaniciForAddDto.PasswordHash = passwordHash;
+            kullaniciForAddDto.PasswordSalt = passwordSalt;
 
-            await _context.Kullanicilar.AddAsync(_mapper.Map<Kullanici>(kullaniciForAddUpdateDto));
+            await _context.Kullanicilar.AddAsync(_mapper.Map<Kullanici>(kullaniciForAddDto));
             return await SaveChanges();
         }
-        public async Task<bool> UpdateAsync(KullaniciForUpdateDto kullaniciForAddUpdateDto)
+        public async Task<bool> UpdateAsync(KullaniciForUpdateDto kullaniciForUpdateDto)
         {
             byte[] passwordHash, passwordSalt;
-            CreatePasswordHash(kullaniciForAddUpdateDto.Password, out passwordHash, out passwordSalt);
-            kullaniciForAddUpdateDto.PasswordHash = passwordHash;
-            kullaniciForAddUpdateDto.PasswordSalt = passwordSalt;
+            CreatePasswordHash(kullaniciForUpdateDto.Password, out passwordHash, out passwordSalt);
+            kullaniciForUpdateDto.PasswordHash = passwordHash;
+            kullaniciForUpdateDto.PasswordSalt = passwordSalt;
 
             _context.ChangeTracker.Clear();
-            _context.Kullanicilar.Update(_mapper.Map<Kullanici>(kullaniciForAddUpdateDto));
+            _context.Kullanicilar.Update(_mapper.Map<Kullanici>(kullaniciForUpdateDto));
             return await SaveChanges();
         }
 
-        public async Task<bool> DeleteAsync(Kullanici kullanici)
+        public async Task<bool> DeleteAsync(Expression<Func<Kullanici, bool>> filter)
         {
+            var kullanici = _context.Kullanicilar.FirstOrDefault(filter);
             _context.Kullanicilar.Remove(kullanici);
             return await SaveChanges();
         }

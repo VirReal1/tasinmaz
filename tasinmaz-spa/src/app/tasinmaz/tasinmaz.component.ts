@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { Policies } from '../http/policies';
 import { Tasinmaz } from '../models/tasinmaz';
 import { AlertifyService } from '../services/alertify.service';
 import { AuthService } from '../services/auth.service';
@@ -104,7 +105,7 @@ export class TasinmazComponent implements OnInit {
   }
 
   deleteTasinmaz(tasinmaz) {
-    this.tasinmazService.deleteTasinmaz(tasinmaz).subscribe((data) => {
+    this.tasinmazService.deleteTasinmaz(tasinmaz.id).subscribe((data) => {
       if (data['error']) {
         this.alertifyService.error(data['message']);
       } else if (data['warning']) {
@@ -133,6 +134,9 @@ export class TasinmazComponent implements OnInit {
   }
 
   adminMi(): boolean {
-    return this.authService.adminMi;
+    if (this.authService.userRole == Policies.AdminPolicy) {
+      return true;
+    }
+    return false;
   }
 }

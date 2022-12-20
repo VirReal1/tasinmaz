@@ -22,7 +22,7 @@ namespace tasinmaz.API.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = Policies.Admin)]
+        //[Authorize(Policy = Policies.Admin)]
         public async Task<ActionResult> GetAll()
         {
             var allLoglar = await _logService.GetAllAsync();
@@ -30,7 +30,7 @@ namespace tasinmaz.API.Controllers
             return Ok(allLoglar);
         }
         [HttpGet("search")]
-        [Authorize(Policy = Policies.Admin)]
+        //[Authorize(Policy = Policies.Admin)]
         public async Task<ActionResult> GetBySearch([FromBody] LogDto logDto)
         {
             var searchLoglar = await _logService.GetLoglarAsync(logDto);

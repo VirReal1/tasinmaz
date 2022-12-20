@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { FormGroup } from '@angular/forms';
-import { AddUpdateKullanici } from '../models/addUpdateKullanici';
-import { ShowDeleteKullanici } from '../models/showDeleteKullanici';
+import { AddKullanici } from '../models/addKullanici';
+import { ShowKullanici } from '../models/showKullanici';
+import { UpdateKullanici } from '../models/updateKullanici';
 import { AlertifyService } from '../services/alertify.service';
 import { UserService } from '../services/user.service';
 
@@ -15,7 +16,7 @@ import { UserService } from '../services/user.service';
 export class UserComponent implements OnInit {
   constructor(private userService: UserService, private alertifyService: AlertifyService, private formBuilder: FormBuilder) {}
 
-  kullanicilar: ShowDeleteKullanici[];
+  kullanicilar: ShowKullanici[];
   searchForm: FormGroup;
   ngOnInit() {
     this.createSearchForm();
@@ -24,7 +25,7 @@ export class UserComponent implements OnInit {
   }
 
   createSearchForm() {
-    this.searchForm = this.formBuilder.group({ id: [], ad: [], soyad: [], email: [], searchAdminMi: [] });
+    this.searchForm = this.formBuilder.group({ id: [], ad: [], soyad: [], email: [], userRole: [] });
   }
 
   getAllKullanicilar() {
@@ -40,15 +41,13 @@ export class UserComponent implements OnInit {
 
   searchKullanicilar() {
     if (this.searchForm.valid) {
-      let searchParameters: ShowDeleteKullanici;
+      let searchParameters: ShowKullanici;
       if (this.searchForm.value.id === null) {
         this.searchForm.value.id = 0;
       }
 
       searchParameters = Object.assign({}, this.searchForm.value);
-      if (searchParameters.searchAdminMi === undefined) {
-        searchParameters.searchAdminMi = null;
-      }
+
       this.userService.getKullanicilarBySearch(searchParameters).subscribe((data) => {
         if (data['error']) {
           this.alertifyService.error(data['message']);
@@ -64,14 +63,14 @@ export class UserComponent implements OnInit {
     }
   }
 
-  kullaniciEditData: ShowDeleteKullanici;
+  kullaniciEditData: ShowKullanici;
   editPressed: boolean = false;
   editKullanici(kullanici) {
     this.kullaniciEditData = kullanici;
     this.editPressed = true;
   }
 
-  addKullanici(kullanici) {
+  addKullanici(kullanici: AddKullanici) {
     this.userService.addKullanici(kullanici).subscribe((data) => {
       if (data['error']) {
         this.alertifyService.error(data['message']);
@@ -84,7 +83,7 @@ export class UserComponent implements OnInit {
     });
   }
 
-  updateKullanici(kullanici) {
+  updateKullanici(kullanici: UpdateKullanici) {
     this.userService.updateKullanici(kullanici).subscribe((data) => {
       if (data['error']) {
         this.alertifyService.error(data['message']);
@@ -97,8 +96,8 @@ export class UserComponent implements OnInit {
     });
   }
 
-  deleteKullanici(kullanici) {
-    this.userService.deleteKullanici(kullanici).subscribe((data) => {
+  deleteKullanici(kullanici: ShowKullanici) {
+    this.userService.deleteKullanici(kullanici.id).subscribe((data) => {
       if (data['error']) {
         this.alertifyService.error(data['message']);
       } else if (data['warning']) {
@@ -110,7 +109,7 @@ export class UserComponent implements OnInit {
     });
   }
 
-  toKullaniciPage(kullanici: AddUpdateKullanici) {
+  toKullaniciPage(kullanici) {
     if (kullanici !== null) {
       if (kullanici.id === 0) {
         this.addKullanici(kullanici);

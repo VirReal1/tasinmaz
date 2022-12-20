@@ -8,18 +8,19 @@ import { NavComponent } from './nav/nav.component';
 import { AlertifyService } from './services/alertify.service';
 import { TasinmazComponent } from './tasinmaz/tasinmaz.component';
 import { LogComponent } from './log/log.component';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { appRoutes } from './routes';
 import { UserComponent } from './user/user.component';
 import { TasinmazEditComponent } from './tasinmaz/tasinmaz-edit/tasinmaz-edit.component';
 import { UserEditComponent } from './user/user-edit/user-edit.component';
 import { LoginComponent } from './login/login.component';
+import { AuthInterceptor } from './http/auth-interceptor';
 
 @NgModule({
   declarations: [AppComponent, NavComponent, LoginComponent, TasinmazComponent, LogComponent, UserComponent, TasinmazEditComponent, UserEditComponent],
   imports: [BrowserModule, AppRoutingModule, HttpClientModule, RouterModule.forRoot(appRoutes), ReactiveFormsModule, FormsModule],
-  providers: [AlertifyService],
+  providers: [AlertifyService, { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

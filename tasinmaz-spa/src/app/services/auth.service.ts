@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { JwtHelper, tokenNotExpired } from 'angular2-jwt';
@@ -9,11 +9,10 @@ import { AlertifyService } from './alertify.service';
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(private jwtHelper: JwtHelper, private http: HttpClient, private router: Router, private alertifyService: AlertifyService) {}
+  constructor(private http: HttpClient, private router: Router, private alertifyService: AlertifyService) {}
   private path = 'https://localhost:44343/api/users/';
   private TOKEN_KEY = 'token';
-  private ADMIN_KEY = 'adminMi';
-  private KULLANICIID_KEY = 'kullaniciId';
+  private jwtHelper: JwtHelper = new JwtHelper();
 
   login(loginKullanici: LoginKullanici) {
     this.http.post(this.path + 'login', loginKullanici).subscribe((data) => {
@@ -22,10 +21,7 @@ export class AuthService {
       } else if (data['error']) {
         this.alertifyService.error(data['message']);
       } else {
-        localStorage.setItem(this.ADMIN_KEY, data['data'].adminMi);
-        localStorage.setItem(this.KULLANICIID_KEY, data['data'].id);
-        localStorage.setItem(this.TOKEN_KEY, data['data'].token);
-        console.log(this.jwtHelper.decodeToken(data['data'].token.toString()));
+        localStorage.setItem(this.TOKEN_KEY, data['data']);
         this.alertifyService.success(data['message']);
         this.router.navigateByUrl('/tasinmazlar');
       }
@@ -33,8 +29,6 @@ export class AuthService {
   }
 
   logout() {
-    localStorage.removeItem(this.ADMIN_KEY);
-    localStorage.removeItem(this.KULLANICIID_KEY);
     localStorage.removeItem(this.TOKEN_KEY);
     this.router.navigateByUrl('/login');
     this.alertifyService.success('Çıkış başarılı.');
@@ -44,11 +38,11 @@ export class AuthService {
     return tokenNotExpired(this.TOKEN_KEY);
   }
 
-  get adminMi(): boolean {
-    return JSON.parse(localStorage.getItem(this.ADMIN_KEY));
+  get userRole() {
+    return this.jwtHelper.decodeToken(localStorage.getItem(this.TOKEN_KEY))["role"]
   }
 
   get kullaniciId() {
-    return JSON.parse(localStorage.getItem(this.KULLANICIID_KEY));
+    return Number(this.jwtHelper.decodeToken(localStorage.getItem(this.TOKEN_KEY))["nameid"])
   }
 }

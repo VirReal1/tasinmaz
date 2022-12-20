@@ -1,8 +1,9 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AddUpdateKullanici } from '../models/addUpdateKullanici';
-import { ShowDeleteKullanici } from '../models/showDeleteKullanici';
+import { AddKullanici } from '../models/addKullanici';
+import { ShowKullanici } from '../models/showKullanici';
+import { UpdateKullanici } from '../models/updateKullanici';
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -12,29 +13,23 @@ export class UserService {
   constructor(private http: HttpClient, private authService: AuthService) {}
   path = 'https://localhost:44343/api/users/';
 
-  getKullanicilar(): Observable<ShowDeleteKullanici[]> {
-    return this.http.get<ShowDeleteKullanici[]>(this.path + 'all/' + this.authService.kullaniciId);
+  getKullanicilar(): Observable<ShowKullanici[]> {
+    return this.http.get<ShowKullanici[]>(this.path + 'all/' + this.authService.kullaniciId);
   }
 
-  getKullanicilarBySearch(kullanici): Observable<ShowDeleteKullanici[]> {
-    return this.http.post<ShowDeleteKullanici[]>(this.path + 'search', kullanici);
+  getKullanicilarBySearch(kullanici): Observable<ShowKullanici[]> {
+    return this.http.post<ShowKullanici[]>(this.path + 'search', kullanici);
   }
 
-  addKullanici(kullanici: AddUpdateKullanici) {
-    return this.http.post(this.path + 'register', kullanici);
+  addKullanici(kullanici: AddKullanici) {
+    return this.http.post(this.path, kullanici);
   }
 
-  updateKullanici(kullanici: AddUpdateKullanici) {
+  updateKullanici(kullanici: UpdateKullanici) {
     return this.http.put(this.path, kullanici);
   }
 
-  deleteKullanici(kullanici: ShowDeleteKullanici) {
-    const options = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-      }),
-      body: kullanici,
-    };
-    return this.http.delete(this.path, options);
+  deleteKullanici(kullaniciId: number) {
+    return this.http.delete(this.path + this.authService.kullaniciId + "/" + kullaniciId);
   }
 }

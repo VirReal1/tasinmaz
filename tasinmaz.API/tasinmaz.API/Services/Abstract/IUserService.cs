@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using tasinmaz.API.Dtos;
-using tasinmaz.API.Models.Concrete;
 using tasinmaz.API.ServiceResponder;
 
 namespace tasinmaz.API.Services.Abstract
@@ -10,9 +9,9 @@ namespace tasinmaz.API.Services.Abstract
     {
         Task<ServiceResponse<List<KullaniciForShowDto>>> GetAllAsync(int logKullaniciId);
         Task<ServiceResponse<List<KullaniciForShowDto>>> GetUsersAsync(KullaniciForShowDto kullaniciForShowDto);
-        Task<ServiceResponse<KullaniciToken>> LoginUserAsync(KullaniciForLoginDto kullaniciForLoginDto);
-        Task<ServiceResponse<KullaniciForShowDto>> AddUserAsync(KullaniciForUpdateDto kullaniciForAddDto);
+        Task<ServiceResponse<string>> LoginUserAsync(KullaniciForLoginDto kullaniciForLoginDto);
+        Task<ServiceResponse<KullaniciForShowDto>> AddUserAsync(KullaniciForAddDto kullaniciForAddDto);
         Task<ServiceResponse<KullaniciForShowDto>> UpdateUserAsync(KullaniciForUpdateDto kullaniciForUpdateDto);
-        Task<ServiceResponse<KullaniciForShowDto>> DeleteUserAsync(KullaniciForShowDto kullaniciForDeleteDto);
+        Task<ServiceResponse<KullaniciForShowDto>> DeleteUserAsync(int logKullaniciId, int kullaniciId);
     }
 }

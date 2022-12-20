@@ -43,8 +43,9 @@ namespace tasinmaz.API.Data
             return await SaveChanges();
         }
 
-        public async Task<bool> DeleteAsync(T entity)
+        public async Task<bool> DeleteAsync(Expression<Func<T, bool>> filter)
         {
+            var entity = _context.Set<T>().FirstOrDefault(filter);
             _context.Set<T>().Remove(entity);
             return await SaveChanges();
         }

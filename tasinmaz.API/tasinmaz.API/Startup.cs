@@ -14,6 +14,9 @@ using tasinmaz.API.Data;
 using tasinmaz.API.Services.Abstract;
 using tasinmaz.API.Services.Concrete;
 using Newtonsoft.Json;
+using tasinmaz.API.Helpers;
+using Microsoft.AspNetCore.Http;
+using System.Configuration;
 
 namespace tasinmaz.API
 {
@@ -25,15 +28,14 @@ namespace tasinmaz.API
         }
 
         public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             var key = Encoding.ASCII.GetBytes(Configuration.GetSection("AppSettings:Token").Value);
 
-            services.AddControllers().AddNewtonsoftJson();
             services.AddDbContext<DataContext>(x => x.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+ 
             services.AddAutoMapper();
+
             services.AddCors(opt =>
             {
                 opt.AddDefaultPolicy(builder =>
@@ -41,11 +43,7 @@ namespace tasinmaz.API
                     builder.AllowAnyOrigin();
                 });
             });
-            services.AddAuthorization(config =>
-            {
-                config.AddPolicy(Policies.Admin, Policies.AdminPolicy());
-                config.AddPolicy(Policies.User, Policies.UserPolicy());
-            });
+
             services.AddHttpContextAccessor();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserService, UserService>();
@@ -53,6 +51,7 @@ namespace tasinmaz.API
             services.AddScoped<ITasinmazService, TasinmazService>();
             services.AddScoped<ILogRepository, LogRepository>();
             services.AddScoped<ILogService, LogService>();
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
             {
                 opt.SaveToken = true;
@@ -62,15 +61,22 @@ namespace tasinmaz.API
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = Configuration["Jwt: Issuer"],
-                    ValidAudience = Configuration["Jwt: Audience"],
+                    ValidIssuer = Configuration["AppSettings:Issuer"],
+                    ValidAudience = Configuration["AppSettings:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ClockSkew = TimeSpan.Zero,
                 };
             });
+
+            services.AddAuthorization(config =>
+            {
+                config.AddPolicy(Policies.Admin, Policies.AdminPolicy());
+                config.AddPolicy(Policies.User, Policies.UserPolicy());
+            });
+
+            services.AddControllers();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())

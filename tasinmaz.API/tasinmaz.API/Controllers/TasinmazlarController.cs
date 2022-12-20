@@ -24,8 +24,8 @@ namespace tasinmaz.API.Controllers
         }
 
         [HttpGet("all/{kullaniciId}")]
-        [Authorize(Policy = Policies.Admin)]
-        [Authorize(Policy = Policies.User)]
+        //[Authorize(Policy = Policies.Admin)]
+        //[Authorize(Policy = Policies.User)]
         public async Task<ActionResult> GetAllById(int kullaniciId)
         {
             var allTasinmazlar = await _tasinmazService.GetAllAsync(kullaniciId);
@@ -34,8 +34,8 @@ namespace tasinmaz.API.Controllers
         }
 
         [HttpPost("search")]
-        [Authorize(Policy = Policies.Admin)]
-        [Authorize(Policy = Policies.User)]
+        //[Authorize(Policy = Policies.Admin)]
+        //[Authorize(Policy = Policies.User)]
         public async Task<ActionResult> GetBySearch([FromBody] TasinmazDto tasinmazDto)
         {
             var searchTasinmaz = await _tasinmazService.GetTasinmazlarAsync(tasinmazDto);
@@ -44,8 +44,8 @@ namespace tasinmaz.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = Policies.Admin)]
-        [Authorize(Policy = Policies.User)]
+        //[Authorize(Policy = Policies.Admin)]
+        //[Authorize(Policy = Policies.User)]
         public async Task<ActionResult> Add([FromBody] TasinmazDto tasinmazDto)
         {
             var createTasinmaz = await _tasinmazService.AddTasinmazAsync(tasinmazDto);
@@ -54,8 +54,8 @@ namespace tasinmaz.API.Controllers
         }
 
         [HttpPut]
-        [Authorize(Policy = Policies.Admin)]
-        [Authorize(Policy = Policies.User)]
+        //[Authorize(Policy = Policies.Admin)]
+        //[Authorize(Policy = Policies.User)]
         public async Task<ActionResult> Update([FromBody] TasinmazDto tasinmazDto)
         {
             var updateTasinmaz = await _tasinmazService.UpdateTasinmazAsync(tasinmazDto);
@@ -63,12 +63,12 @@ namespace tasinmaz.API.Controllers
             return Ok(updateTasinmaz);
         }
 
-        [HttpDelete]
-        [Authorize(Policy = Policies.Admin)]
-        [Authorize(Policy = Policies.User)]
-        public async Task<ActionResult> Delete([FromBody] TasinmazDto tasinmazDto)
+        [HttpDelete("{logKullaniciId}/{tasinmazId}")]
+        //[Authorize(Policy = Policies.Admin)]
+        //[Authorize(Policy = Policies.User)]
+        public async Task<ActionResult> Delete(int logKullaniciId, int tasinmazId)
         {
-            var removeTasinmaz = await _tasinmazService.DeleteTasinmazAsync(tasinmazDto);
+            var removeTasinmaz = await _tasinmazService.DeleteTasinmazAsync(logKullaniciId, tasinmazId);
 
             return Ok(removeTasinmaz);
         }

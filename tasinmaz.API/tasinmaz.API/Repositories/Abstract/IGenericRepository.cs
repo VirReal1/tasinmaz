@@ -12,6 +12,6 @@ namespace tasinmaz.API.Data
         Task<bool> ExistsAsync(Expression<Func<T, bool>> filter);
         Task<bool> AddAsync(T entity);
         Task<bool> UpdateAsync(T entity);
-        Task<bool> DeleteAsync(T entity);
+        Task<bool> DeleteAsync(Expression<Func<T, bool>> filter);
     }
 }

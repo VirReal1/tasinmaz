@@ -1,8 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Router } from '@angular/router';
 import { Tasinmaz } from 'src/app/models/tasinmaz';
-import { AlertifyService } from 'src/app/services/alertify.service';
 import { AuthService } from 'src/app/services/auth.service';
 import Map from 'ol/Map';
 import View from 'ol/View';
@@ -16,7 +14,7 @@ import OSM from 'ol/source/OSM';
   providers: [AuthService],
 })
 export class TasinmazEditComponent implements OnInit {
-  constructor(private authService: AuthService, private alertifyService: AlertifyService, private router: Router, private formBuilder: FormBuilder) {}
+  constructor(private authService: AuthService, private formBuilder: FormBuilder) {}
 
   @Input() editParameters: Tasinmaz;
   @Output() toTasinmazPage = new EventEmitter();

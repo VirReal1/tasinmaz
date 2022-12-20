@@ -300,21 +300,21 @@ namespace tasinmaz.API.Services.Concrete
             return response;
         }
 
-        public async Task<ServiceResponse<TasinmazDto>> DeleteTasinmazAsync(TasinmazDto tasinmazDto)
+        public async Task<ServiceResponse<TasinmazDto>> DeleteTasinmazAsync(int logKullaniciId, int kullaniciId)
         {
             ServiceResponse<TasinmazDto> response = new ServiceResponse<TasinmazDto>();
             Log log = new Log();
 
             try
             {
-                if (!await _tasinmazRepository.ExistsAsync(x => x.Id == tasinmazDto.Id))
+                if (!await _tasinmazRepository.ExistsAsync(x => x.Id == kullaniciId))
                 {
                     response.Process = "Taşınmazlar";
                     response.Message = "Taşınmaz veri tabanında bulunamadı.";
                     response.Warning = true;
                     response.Data = null;
 
-                    log.KullaniciId = tasinmazDto.LogKullaniciId;
+                    log.KullaniciId = logKullaniciId;
                     log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
@@ -324,19 +324,19 @@ namespace tasinmaz.API.Services.Concrete
                     return response;
                 }
 
-                if (!await _tasinmazRepository.DeleteAsync(_mapper.Map<Tasinmaz>(tasinmazDto)))
+                if (!await _tasinmazRepository.DeleteAsync(x=>x.Id == kullaniciId))
                 {
                     response.Process = "Taşınmazlar";
                     response.Message = "Taşınmaz veri tabanından silinirken bir hata oluştu.";
                     response.Error = true;
                     response.Data = null;
 
-                    log.KullaniciId = tasinmazDto.LogKullaniciId;
+                    log.KullaniciId = logKullaniciId;
                     log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Silme";
-                    log.Aciklama = $"Açıklama: \"Taşınmaz: \"{tasinmazDto.Adi}\" veri tabanından silinirken bir hata oluştu.\" - Veri: \"Veri yok.\"";
+                    log.Aciklama = $"Açıklama: \"Taşınmaz veri tabanından silinirken bir hata oluştu.\" - Veri: \"Veri yok.\"";
                     await _logService.AddLogAsync(log);
                     return response;
                 }
@@ -344,7 +344,7 @@ namespace tasinmaz.API.Services.Concrete
                 response.Message = "Taşınmaz başarıyla silindi.";
                 response.Data = null;
 
-                log.KullaniciId = tasinmazDto.LogKullaniciId;
+                log.KullaniciId = logKullaniciId;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarılı";
@@ -360,12 +360,12 @@ namespace tasinmaz.API.Services.Concrete
                 response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
 
-                log.KullaniciId = tasinmazDto.LogKullaniciId;
+                log.KullaniciId = logKullaniciId;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarısız";
                 log.Islem = "Silme";
-                log.Aciklama = $"Açıklama: \"Taşınmaz: \"{tasinmazDto.Adi}\" servis katmanından silinirken bir hata oluştu.\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
+                log.Aciklama = $"Açıklama: \"Taşınmaz servis katmanından silinirken bir hata oluştu.\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
                 await _logService.AddLogAsync(log);
             }
             return response;

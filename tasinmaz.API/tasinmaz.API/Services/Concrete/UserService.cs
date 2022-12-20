@@ -9,7 +9,6 @@ using tasinmaz.API.Dtos;
 using tasinmaz.API.Dtos.Tasinmaz;
 using tasinmaz.API.Entities.Concrete;
 using tasinmaz.API.Models;
-using tasinmaz.API.Models.Concrete;
 using tasinmaz.API.ServiceResponder;
 using tasinmaz.API.Services.Abstract;
 
@@ -87,7 +86,7 @@ namespace tasinmaz.API.Services.Concrete
                     (kullaniciForShowDto.Ad == null || x.Ad.ToLower().Contains(kullaniciForShowDto.Ad.ToLower())) &&
                     (kullaniciForShowDto.Soyad == null || x.Soyad.ToLower().Contains(kullaniciForShowDto.Soyad.ToLower())) &&
                     (kullaniciForShowDto.Email == null || x.Email.ToLower().Contains(kullaniciForShowDto.Email.ToLower())) &&
-                    kullaniciForShowDto.SearchAdminMi == null || x.AdminMi == kullaniciForShowDto.SearchAdminMi);
+                    kullaniciForShowDto.UserRole == null || x.UserRole == kullaniciForShowDto.UserRole);
 
                 if (usersList == null)
                 {
@@ -136,9 +135,9 @@ namespace tasinmaz.API.Services.Concrete
             return response;
         }
 
-        public async Task<ServiceResponse<KullaniciToken>> LoginUserAsync(KullaniciForLoginDto kullaniciForLoginDto)
+        public async Task<ServiceResponse<string>> LoginUserAsync(KullaniciForLoginDto kullaniciForLoginDto)
         {
-            ServiceResponse<KullaniciToken> response = new ServiceResponse<KullaniciToken>();
+            ServiceResponse<string> response = new ServiceResponse<string>();
             Log log = new Log();
 
             try
@@ -162,9 +161,9 @@ namespace tasinmaz.API.Services.Concrete
                 }
                 response.Process = "Kullanıcılar";
                 response.Message = "Başarıyla giriş yapıldı.";
-                response.Data = kullaniciToken;
+                response.Data = kullaniciToken[0];
 
-                log.KullaniciId = kullaniciToken.Id;
+                log.KullaniciId = Convert.ToInt32(kullaniciToken[1]);
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarılı";
@@ -190,7 +189,7 @@ namespace tasinmaz.API.Services.Concrete
             return response;
         }
 
-        public async Task<ServiceResponse<KullaniciForShowDto>> AddUserAsync(KullaniciForUpdateDto kullaniciForAddDto)
+        public async Task<ServiceResponse<KullaniciForShowDto>> AddUserAsync(KullaniciForAddDto kullaniciForAddDto)
         {
             ServiceResponse<KullaniciForShowDto> response = new ServiceResponse<KullaniciForShowDto>();
             Log log = new Log();
@@ -334,21 +333,21 @@ namespace tasinmaz.API.Services.Concrete
             return response;
         }
 
-        public async Task<ServiceResponse<KullaniciForShowDto>> DeleteUserAsync(KullaniciForShowDto kullaniciForDeleteDto)
+        public async Task<ServiceResponse<KullaniciForShowDto>> DeleteUserAsync(int logKullaniciId, int kullaniciId)
         {
             ServiceResponse<KullaniciForShowDto> response = new ServiceResponse<KullaniciForShowDto>();
             Log log = new Log();
 
             try
             {
-                if (!await _userRepository.Exists(x => x.Id == kullaniciForDeleteDto.Id))
+                if (!await _userRepository.Exists(x => x.Id == kullaniciId))
                 {
                     response.Process = "Kullanıcılar";
                     response.Message = "Kullanıcı veri tabanında bulunamadı.";
                     response.Warning = true;
                     response.Data = null;
 
-                    log.KullaniciId = kullaniciForDeleteDto.LogKullaniciId;
+                    log.KullaniciId = logKullaniciId;
                     log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
@@ -358,19 +357,19 @@ namespace tasinmaz.API.Services.Concrete
                     return response;
                 }
 
-                if (!await _userRepository.DeleteAsync(_mapper.Map<Kullanici>(kullaniciForDeleteDto)))
+                if (!await _userRepository.DeleteAsync(x=>x.Id == kullaniciId))
                 {
                     response.Process = "Kullanıcılar";
                     response.Message = "Taşınmaz veri tabanından silinirken bir hata oluştu.";
                     response.Error = true;
                     response.Data = null;
 
-                    log.KullaniciId = kullaniciForDeleteDto.LogKullaniciId;
+                    log.KullaniciId = logKullaniciId;
                     log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Silme";
-                    log.Aciklama = $"Açıklama: \"Kullanıcı: \"{kullaniciForDeleteDto.Email}\" veri tabanından silinirken bir hata oluştu.\" - Veri: \"Veri yok.\"";
+                    log.Aciklama = $"Açıklama: \"Kullanıcı veri tabanından silinirken bir hata oluştu.\" - Veri: \"Veri yok.\"";
                     await _logService.AddLogAsync(log);
                     return response;
                 }
@@ -378,7 +377,7 @@ namespace tasinmaz.API.Services.Concrete
                 response.Message = "Kullanıcı başarıyla silindi.";
                 response.Data = null;
 
-                log.KullaniciId = kullaniciForDeleteDto.LogKullaniciId;
+                log.KullaniciId = logKullaniciId;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarılı";
@@ -394,12 +393,12 @@ namespace tasinmaz.API.Services.Concrete
                 response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
 
-                log.KullaniciId = kullaniciForDeleteDto.LogKullaniciId;
+                log.KullaniciId = logKullaniciId;
                 log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarısız";
                 log.Islem = "Silme";
-                log.Aciklama = $"Açıklama: \"Kullanıcı: \"{kullaniciForDeleteDto.Email}\" servis katmanından silinirken bir hata oluştu.\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
+                log.Aciklama = $"Açıklama: \"Kullanıcı servis katmanından silinirken bir hata oluştu.\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
                 await _logService.AddLogAsync(log);
             }
             return response;

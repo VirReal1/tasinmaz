@@ -46,6 +46,7 @@
           "Microsoft.EntityFrameworkCore.Tools": "5.0.17",
           "Newtonsoft.Json": "13.0.2",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "5.0.10",
+          "System.IdentityModel.Tokens.Jwt": "5.6.0",
           "System.Net.Http": "4.3.4",
           "Microsoft.AspNetCore.Antiforgery": "3.1.0.0",
           "Microsoft.AspNetCore.Authentication.Abstractions.Reference": "3.1.0.0",

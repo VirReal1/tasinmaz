@@ -10,7 +10,7 @@ using tasinmaz.API.Data;
 namespace tasinmaz.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20221216184812_TasinmazMigration")]
+    [Migration("20221219135329_TasinmazMigration")]
     partial class TasinmazMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -100,9 +100,6 @@ namespace tasinmaz.API.Migrations
                     b.Property<string>("Ad")
                         .HasColumnType("text");
 
-                    b.Property<bool>("AdminMi")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Email")
                         .HasColumnType("text");
 
@@ -113,6 +110,9 @@ namespace tasinmaz.API.Migrations
                         .HasColumnType("bytea");
 
                     b.Property<string>("Soyad")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserRole")
                         .HasColumnType("text");
 
                     b.HasKey("Id");

@@ -1,3 +1,43 @@
-<p>
-  user-edit works!
-</p>
+<div class="container text-center">
+  <div class="mt-3">
+    <form [formGroup]="editForm" (ngSubmit)="editKullanici()">
+      <div class="input-group mb-3">
+        <span class="input-group-text text-right" id="inputGroup-sizing-default" style="width: 9rem;">Ad</span>
+        <input type="text" class="form-control" aria-label="Sizing example input" formControlName="ad" aria-describedby="inputGroup-sizing-default" required autofocus/>
+      </div>
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="inputGroup-sizing-default" style="width: 9rem;">Soyad</span>
+        <input type="text" class="form-control" aria-label="Sizing example input" formControlName="soyad" aria-describedby="inputGroup-sizing-default" required/>
+      </div>
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="ilceAdi" style="width: 9rem;">E-Mail</span>
+        <input type="email" class="form-control" aria-label="Sizing example input" formControlName="email" aria-describedby="inputGroup-sizing-default" required/>
+      </div>
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="inputGroup-sizing-default" style="width: 9rem;">Şifre</span>
+        <input type="password" class="form-control" aria-label="Sizing example input" formControlName="password" aria-describedby="inputGroup-sizing-default" required/>
+      </div>
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="inputGroup-sizing-default" style="width: 9rem;">Şifreyi Tekrarlayın</span>
+        <input type="password" class="form-control" aria-label="Sizing example input" formControlName="confirmPassword" aria-describedby="inputGroup-sizing-default" required/>
+      </div>
+      <div class="mb-3">
+        <select class="form-select" formControlName="userRole" aria-label="Default select example">
+          <option [ngValue]="null" disabled selected>Kullanıcı Rolünü Seçiniz.</option>
+          <option value="Admin" selected>Admin</option>
+          <option value="User">User</option>
+        </select>
+      </div>
+      <div class="row">
+        <div class="col-lg-4 col-md-4 col-sm-4" style="text-align: start;">
+          <button class="btn btn-md btn-danger btn-block" type="button" (click)="goBackButton()">Geri Dön</button>
+        </div>
+        <div class="col-lg-8 col-md-8 col-sm-8" style="text-align: end">
+          <button class="btn btn-md btn-success btn-block" [disabled]="editForm.invalid" type="submit">{{buttonAdi}}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script type="text/javascript" src="Scripts/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="Scripts/bootstrap.min.js"></script>

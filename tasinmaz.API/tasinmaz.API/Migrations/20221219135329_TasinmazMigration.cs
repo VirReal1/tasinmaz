@@ -30,7 +30,7 @@ namespace tasinmaz.API.Migrations
                     Ad = table.Column<string>(type: "text", nullable: true),
                     Soyad = table.Column<string>(type: "text", nullable: true),
                     Email = table.Column<string>(type: "text", nullable: true),
-                    AdminMi = table.Column<bool>(type: "boolean", nullable: false),
+                    UserRole = table.Column<string>(type: "text", nullable: true),
                     PasswordHash = table.Column<byte[]>(type: "bytea", nullable: true),
                     PasswordSalt = table.Column<byte[]>(type: "bytea", nullable: true)
                 },

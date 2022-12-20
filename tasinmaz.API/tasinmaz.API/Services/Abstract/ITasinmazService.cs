@@ -12,6 +12,6 @@ namespace tasinmaz.API.Services.Abstract
         Task<ServiceResponse<List<TasinmazDto>>> GetTasinmazlarAsync(TasinmazDto tasinmazDto);
         Task<ServiceResponse<TasinmazDto>> AddTasinmazAsync(TasinmazDto tasinmazDto);
         Task<ServiceResponse<TasinmazDto>> UpdateTasinmazAsync(TasinmazDto tasinmazDto);
-        Task<ServiceResponse<TasinmazDto>> DeleteTasinmazAsync(TasinmazDto tasinmazDto);
+        Task<ServiceResponse<TasinmazDto>> DeleteTasinmazAsync(int logKullaniciId, int kullaniciId);
     }
 }
