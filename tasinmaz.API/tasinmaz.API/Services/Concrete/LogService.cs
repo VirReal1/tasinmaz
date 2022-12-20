@@ -33,6 +33,15 @@ namespace tasinmaz.API.Services.Concrete
                 var logAllList = await _logRepository.GetAllAsync();
                 var logDtoAllList = new List<LogDto>();
 
+                if (logAllList.Count == 0)
+                {
+                    response.Process = "Loglar";
+                    response.Message = "Loglar veri tabanında bulunamadı.";
+                    response.Warning = true;
+                    response.Data = null;
+                    return response;
+                }
+
                 foreach (var item in logAllList)
                 {
                     logDtoAllList.Add(_mapper.Map<LogDto>(item));

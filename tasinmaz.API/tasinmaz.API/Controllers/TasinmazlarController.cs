@@ -23,12 +23,12 @@ namespace tasinmaz.API.Controllers
             _tasinmazService = tasinmazService;
         }
 
-        [HttpGet("all/{kullaniciId}")]
+        [HttpGet("all/{logKullaniciId}")]
         //[Authorize(Policy = Policies.Admin)]
         //[Authorize(Policy = Policies.User)]
-        public async Task<ActionResult> GetAllById(int kullaniciId)
+        public async Task<ActionResult> GetAllById(int logKullaniciId)
         {
-            var allTasinmazlar = await _tasinmazService.GetAllAsync(kullaniciId);
+            var allTasinmazlar = await _tasinmazService.GetAllAsync(logKullaniciId);
 
             return Ok(allTasinmazlar);
         }

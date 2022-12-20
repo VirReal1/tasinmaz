@@ -10,7 +10,13 @@
               <th scope="col"><input type="text" formControlName="ad" class="form-control" id="ad" placeholder="Ad" /></th>
               <th scope="col"><input type="text" formControlName="soyad" class="form-control" id="soyad" placeholder="Soyad" /></th>
               <th scope="col"><input type="email" formControlName="email" class="form-control" id="email" placeholder="E-Mail" /></th>
-              <th scope="col"><input type="text" formControlName="userRole" class="form-control" id="userRole" placeholder="Kullanıcı Yetkisi" /></th>
+              <th scope="col">
+                <select class="form-select" formControlName="userRole" aria-label="Default select example">
+                  <option [ngValue]="null" selected>Farketmez</option>
+                  <option value="Admin">Admin</option>
+                  <option value="User">User</option>
+                </select>
+              </th>
             </tr>
           </thead>
           <thead class="text-center">
@@ -29,11 +35,11 @@
                 <i class="btn fas fa-edit" aria-hidden="true" (click)="editKullanici(kullanici)"></i>
                 <i class="btn fas fa-trash" style="padding-left: 0.5rem;" aria-hidden="true" (click)="deleteKullanici(kullanici)"></i>
               </th>
-              <th scope="row">{{kullanici.id}}</th>
-              <td>{{kullanici.ad}}</td>
-              <td>{{kullanici.soyad}}</td>
-              <td>{{kullanici.email}}</td>
-              <td>{{kullanici.userRole}}</td>
+              <th scope="row" class="align-middle">{{kullanici.id}}</th>
+              <td class="align-middle">{{kullanici.ad}}</td>
+              <td class="align-middle">{{kullanici.soyad}}</td>
+              <td class="align-middle">{{kullanici.email}}</td>
+              <td class="align-middle">{{kullanici.userRole}}</td>
             </tr>
           </tbody>
         </table>

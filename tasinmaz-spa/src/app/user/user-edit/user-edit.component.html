@@ -21,10 +21,10 @@
         <span class="input-group-text" id="inputGroup-sizing-default" style="width: 9rem;">Şifreyi Tekrarlayın</span>
         <input type="password" class="form-control" aria-label="Sizing example input" formControlName="confirmPassword" aria-describedby="inputGroup-sizing-default" required/>
       </div>
-      <div class="mb-3">
+      <div class="input-group mb-3">
         <select class="form-select" formControlName="userRole" aria-label="Default select example">
-          <option [ngValue]="null" disabled selected>Kullanıcı Rolünü Seçiniz.</option>
-          <option value="Admin" selected>Admin</option>
+          <option [ngValue]="null" disabled selected>Kullanıcı Rolünü Seçiniz</option>
+          <option value="Admin">Admin</option>
           <option value="User">User</option>
         </select>
       </div>

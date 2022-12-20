@@ -11,7 +11,7 @@ namespace tasinmaz.API.Services.Abstract
     public interface ILocationService
     {
         Task<ServiceResponse<List<Il>>> GetIllerAsync();
-        Task<ServiceResponse<List<Ilce>>> GetIlceByIlIdAsync(int ilId, int kullaniciId);
-        Task<ServiceResponse<List<Mahalle>>> GetMahalleByIlceIdAsync(int ilceId, int kullaniciId);
+        Task<ServiceResponse<List<Ilce>>> GetIlceByIlIdAsync(string ilAdi);
+        Task<ServiceResponse<List<Mahalle>>> GetMahalleByIlceIdAsync(string ilceAdi);
     }
 }

@@ -1,3 +1,46 @@
-<p>
-  log works!
-</p>
+<div class="container grid">
+  <div class="row mt-5">
+    <div class="table-responsive scrollme">
+      <form [formGroup]="searchForm" (ngSubmit)="searchLoglar()">
+        <table class="table mt-3 table-hover table-bordered">
+          <thead class="borderless text-center">
+            <tr class="borderless-row form-group">
+              <th scope="col"><button type="submit" class="btn btn-md btn-primary btn-block">Ara</button></th>
+              <th scope="col"><input type="number" formControlName="id" class="form-control" id="id" placeholder="#" /></th>
+              <th scope="col"><input type="text" formControlName="kullaniciIp" class="form-control" id="adi" placeholder="Kullanıcı Ip" /></th>
+              <th scope="col"><input type="text" formControlName="tarih" class="form-control" id="ilAdi" placeholder="Tarih" /></th>
+              <th scope="col"><input type="text" formControlName="durum" class="form-control" id="ilceAdi" placeholder="Durum" /></th>
+              <th scope="col"><input type="text" formControlName="islem" class="form-control" id="mahalleAdi" placeholder="İşlem" /></th>
+              <th scope="col"><input type="text" formControlName="aciklama" class="form-control" id="ada" placeholder="Açıklama" /></th>
+              <th scope="col"><input type="number" formControlName="kullaniciId" class="form-control" id="parsel" placeholder="Kullanıcı Id" /></th>
+            </tr>
+          </thead>
+          <thead class="text-center">
+            <tr>
+              <th></th>
+              <th scope="col">#</th>
+              <th scope="col">Kullanıcı Ip</th>
+              <th scope="col">Tarih</th>
+              <th scope="col">Durum</th>
+              <th scope="col">İşlem</th>
+              <th scope="col">Açıklama</th>
+              <th scope="col">Kullanıcı Id</th>
+            </tr>
+          </thead>
+          <tbody class="text-center">
+            <tr *ngFor="let log of loglar">
+              <th></th>
+              <th scope="row" class="align-middle">{{log.id}}</th>
+              <td class="align-middle">{{log.kullaniciIp}}</td>
+              <td class="align-middle">{{log.tarih}}</td>
+              <td class="align-middle">{{log.durum}}</td>
+              <td class="align-middle">{{log.islem}}</td>
+              <td class="align-middle">{{log.aciklama}}</td>
+              <td class="align-middle">{{log.kullaniciId}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </div>
+  </div>
+</div>

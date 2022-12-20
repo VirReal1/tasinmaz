@@ -13,7 +13,14 @@
               <th scope="col"><input type="text" formControlName="mahalleAdi" class="form-control" id="mahalleAdi" placeholder="Mahalle Adı" /></th>
               <th scope="col"><input type="text" formControlName="ada" class="form-control" id="ada" placeholder="Ada" /></th>
               <th scope="col"><input type="text" formControlName="parsel" class="form-control" id="parsel" placeholder="Parsel" /></th>
-              <th scope="col"><input type="text" formControlName="nitelik" class="form-control" id="nitelik" placeholder="Nitelik" /></th>
+              <th scope="col">
+                <select class="form-select" formControlName="nitelik" aria-label="Default select example">
+                  <option [ngValue]="null" selected>Farketmez</option>
+                  <option value="Arsa">Arsa</option>
+                  <option value="Tarla">Tarla</option>
+                  <option value="Mesken">Mesken</option>
+                </select>
+              </th>
               <th scope="col"><input type="text" formControlName="koordinatBilgileri" class="form-control" id="koordinatBilgileri" placeholder="Koordinat" /></th>
               <th *ngIf="adminMi()" scope="col"><input type="number" formControlName="kullaniciId" class="form-control" id="kullaniciId" placeholder="Kullanıcı Id" /></th>
             </tr>
@@ -37,18 +44,18 @@
             <tr *ngFor="let tasinmaz of tasinmazlar">
               <th class="text-center">
                 <i class="btn fas fa-edit" aria-hidden="true" (click)="editTasinmaz(tasinmaz)"></i>
-                <i class="btn fas fa-trash" style="padding-left: 0.5rem;" aria-hidden="true" (click)="deleteTasinmaz(tasinmaz)"></i>
+                <i class="btn fas fa-trash" style="padding-left: 0.4rem;" aria-hidden="true" (click)="deleteTasinmaz(tasinmaz)"></i>
               </th>
-              <th scope="row">{{tasinmaz.id}}</th>
-              <td>{{tasinmaz.adi}}</td>
-              <td>{{tasinmaz.ilAdi}}</td>
-              <td>{{tasinmaz.ilceAdi}}</td>
-              <td>{{tasinmaz.mahalleAdi}}</td>
-              <td>{{tasinmaz.ada}}</td>
-              <td>{{tasinmaz.parsel}}</td>
-              <td>{{tasinmaz.nitelik}}</td>
-              <td>{{tasinmaz.koordinatBilgileri}}</td>
-              <td *ngIf="adminMi()">{{tasinmaz.kullaniciId}}</td>
+              <th scope="row" class="align-middle">{{tasinmaz.id}}</th>
+              <td class="align-middle">{{tasinmaz.adi}}</td>
+              <td class="align-middle">{{tasinmaz.ilAdi}}</td>
+              <td class="align-middle">{{tasinmaz.ilceAdi}}</td>
+              <td class="align-middle">{{tasinmaz.mahalleAdi}}</td>
+              <td class="align-middle">{{tasinmaz.ada}}</td>
+              <td class="align-middle">{{tasinmaz.parsel}}</td>
+              <td class="align-middle">{{tasinmaz.nitelik}}</td>
+              <td class="align-middle">{{tasinmaz.koordinatBilgileri}}</td>
+              <td *ngIf="adminMi()" class="align-middle">{{tasinmaz.kullaniciId}}</td>
             </tr>
           </tbody>
         </table>

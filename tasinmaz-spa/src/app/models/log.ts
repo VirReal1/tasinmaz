@@ -6,5 +6,4 @@ export class Log{
   islem: string;
   aciklama: string;
   kullaniciId: number;
-  logKullaniciId: number;
 }

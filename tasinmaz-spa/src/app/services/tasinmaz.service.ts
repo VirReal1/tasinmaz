@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Policies } from '../http/policies';
@@ -23,17 +23,14 @@ export class TasinmazService {
     if (this.authService.userRole != Policies.AdminPolicy) {
       tasinmaz.kullaniciId = this.authService.kullaniciId;
     }
+    else{
+      tasinmaz.kullaniciId = 0;
+    }
     return this.http.post<Tasinmaz[]>(this.path + 'search', tasinmaz);
   }
 
   addTasinmaz(tasinmaz: Tasinmaz) {
-    var headers = new HttpHeaders();
-    headers.append('Content-Type', 'application/json');
-    headers.append('Authorization', 'Bearer' + localStorage.getItem('token'));
-    const httpOptions = {
-      headers: headers
-    };
-    return this.http.post(this.path, tasinmaz, httpOptions);
+    return this.http.post(this.path, tasinmaz);
   }
 
   updateTasinmaz(tasinmaz: Tasinmaz) {
@@ -41,6 +38,6 @@ export class TasinmazService {
   }
 
   deleteTasinmaz(tasinmazId: number) {
-    return this.http.delete(this.path + this.authService.kullaniciId + "/" + tasinmazId);
+    return this.http.delete(this.path + this.authService.kullaniciId + '/' + tasinmazId);
   }
 }

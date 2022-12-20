@@ -38,6 +38,23 @@ namespace tasinmaz.API.Services.Concrete
                 var usersAllList = await _userRepository.GetAllAsync();
                 var usersDtoAllList = new List<KullaniciForShowDto>();
 
+                if (usersAllList.Count == 0)
+                {
+                    response.Process = "Kullanıcılar";
+                    response.Message = "Kullanıcılar veri tabanında bulunamadı.";
+                    response.Warning = true;
+                    response.Data = null;
+
+                    log.KullaniciId = logKullaniciId;
+                    log.KullaniciIp = _httpAccessor.HttpContext.Connection.ToString();
+                    log.Tarih = DateTime.Now;
+                    log.Durum = "Başarısız";
+                    log.Islem = "Getirme";
+                    log.Aciklama = $"Açıklama: \"{response.Message}\"";
+                    await _logService.AddLogAsync(log);
+                    return response;
+                }
+
                 foreach (var item in usersAllList)
                 {
                     usersDtoAllList.Add(_mapper.Map<KullaniciForShowDto>(item));
@@ -52,13 +69,13 @@ namespace tasinmaz.API.Services.Concrete
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarılı";
                 log.Islem = "Getirme";
-                log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"{JsonConvert.SerializeObject(response.Data)}\"";
+                log.Aciklama = $"Açıklama: \"{response.Message}.\"";
                 await _logService.AddLogAsync(log);
             }
             catch (Exception e)
             {
                 response.Process = "Kullanıcılar";
-                response.Message = "Taşınmazları getirirken servis katmanında bir hata oluştu.";
+                response.Message = "Kullanıcıları getirirken servis katmanında bir hata oluştu.";
                 response.Error = true;
                 response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
@@ -68,7 +85,7 @@ namespace tasinmaz.API.Services.Concrete
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarısız";
                 log.Islem = "Getirme";
-                log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
+                log.Aciklama = $"Açıklama: \"{response.Message}\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
                 await _logService.AddLogAsync(log);
             }
             return response;
@@ -100,7 +117,7 @@ namespace tasinmaz.API.Services.Concrete
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Arama";
-                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"Veri yok.\"";
+                    log.Aciklama = $"Açıklama: \"{response.Message}.\"";
                     await _logService.AddLogAsync(log);
                     return response;
                 }
@@ -113,13 +130,13 @@ namespace tasinmaz.API.Services.Concrete
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarılı";
                 log.Islem = "Arama";
-                log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"{JsonConvert.SerializeObject(response.Data)}\"";
+                log.Aciklama = $"Açıklama: \"{response.Message}.\"";
                 await _logService.AddLogAsync(log);
             }
             catch (Exception e)
             {
                 response.Process = "Kullanıcılar";
-                response.Message = "Taşınmazları filtrelerken servis katmanında bir hata oluştu.";
+                response.Message = "Kullanıcıları filtrelerken servis katmanında bir hata oluştu.";
                 response.Error = true;
                 response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
@@ -129,7 +146,7 @@ namespace tasinmaz.API.Services.Concrete
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarısız";
                 log.Islem = "Arama";
-                log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
+                log.Aciklama = $"Açıklama: \"{response.Message}\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
                 await _logService.AddLogAsync(log);
             }
             return response;
@@ -155,7 +172,7 @@ namespace tasinmaz.API.Services.Concrete
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Giriş";
-                    log.Aciklama = $"Açıklama: \"{response.Message}.\" - Veri: \"Veri yok.\"";
+                    log.Aciklama = $"Açıklama: \"{response.Message}.\"";
                     await _logService.AddLogAsync(log);
                     return response;
                 }
@@ -168,7 +185,7 @@ namespace tasinmaz.API.Services.Concrete
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarılı";
                 log.Islem = "Giriş";
-                log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"{JsonConvert.SerializeObject(response.Data)}\"";
+                log.Aciklama = $"Açıklama: \"{response.Message}\"";
                 await _logService.AddLogAsync(log);
             }
             catch (Exception e)
@@ -183,7 +200,7 @@ namespace tasinmaz.API.Services.Concrete
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarısız";
                 log.Islem = "Giriş";
-                log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
+                log.Aciklama = $"Açıklama: \"{response.Message}\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
                 await _logService.AddLogAsync(log);
             }
             return response;
@@ -303,7 +320,7 @@ namespace tasinmaz.API.Services.Concrete
                     return response;
                 }
                 response.Process = "Kullanıcılar";
-                response.Message = "Taşınmaz başarıyla güncellendi.";
+                response.Message = "Kullanıcı başarıyla güncellendi.";
                 response.Data = _mapper.Map<KullaniciForShowDto>(kullaniciForUpdateDto);
 
                 log.KullaniciId = kullaniciForUpdateDto.LogKullaniciId;
@@ -360,7 +377,7 @@ namespace tasinmaz.API.Services.Concrete
                 if (!await _userRepository.DeleteAsync(x=>x.Id == kullaniciId))
                 {
                     response.Process = "Kullanıcılar";
-                    response.Message = "Taşınmaz veri tabanından silinirken bir hata oluştu.";
+                    response.Message = "Kullanıcı veri tabanından silinirken bir hata oluştu.";
                     response.Error = true;
                     response.Data = null;
 
@@ -369,7 +386,7 @@ namespace tasinmaz.API.Services.Concrete
                     log.Tarih = DateTime.Now;
                     log.Durum = "Başarısız";
                     log.Islem = "Silme";
-                    log.Aciklama = $"Açıklama: \"Kullanıcı veri tabanından silinirken bir hata oluştu.\" - Veri: \"Veri yok.\"";
+                    log.Aciklama = $"Açıklama: \"Kullanıcı veri tabanından silinirken bir hata oluştu.\"";
                     await _logService.AddLogAsync(log);
                     return response;
                 }
@@ -382,7 +399,7 @@ namespace tasinmaz.API.Services.Concrete
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarılı";
                 log.Islem = "Silme";
-                log.Aciklama = $"Açıklama: \"{response.Message}\" - Veri: \"{JsonConvert.SerializeObject(response.Data)}\"";
+                log.Aciklama = $"Açıklama: \"{response.Message}\"";
                 await _logService.AddLogAsync(log);
             }
             catch (Exception e)
@@ -398,7 +415,7 @@ namespace tasinmaz.API.Services.Concrete
                 log.Tarih = DateTime.Now;
                 log.Durum = "Başarısız";
                 log.Islem = "Silme";
-                log.Aciklama = $"Açıklama: \"Kullanıcı servis katmanından silinirken bir hata oluştu.\" - Veri: \"Veri yok.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
+                log.Aciklama = $"Açıklama: \"Kullanıcı servis katmanından silinirken bir hata oluştu.\" - Hata Mesajları: \"{JsonConvert.SerializeObject(response.ErrorMessages)}\"";
                 await _logService.AddLogAsync(log);
             }
             return response;

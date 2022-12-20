@@ -54,6 +54,7 @@ export class TasinmazComponent implements OnInit {
       }
 
       searchParameters = Object.assign({}, this.searchForm.value);
+      searchParameters.logKullaniciId === this.authService.kullaniciId;
       this.tasinmazService.getTasinmazlarBySearch(searchParameters).subscribe((data) => {
         if (data['error']) {
           this.alertifyService.error(data['message']);
