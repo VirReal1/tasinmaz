@@ -28,25 +28,26 @@ namespace tasinmaz.API.Services.Concrete
         {
             ServiceResponse<List<LogDto>> response = new ServiceResponse<List<LogDto>>();
 
-            var logAllList = await _logRepository.GetAllAsync();
-            var logDtoAllList = new List<LogDto>();
-
-            foreach (var item in logAllList)
-            {
-                logDtoAllList.Add(_mapper.Map<LogDto>(item));
-            }
-
             try
             {
-                response.Message = "Got all logs.";
-                response.Success = true;
+                var logAllList = await _logRepository.GetAllAsync();
+                var logDtoAllList = new List<LogDto>();
+
+                foreach (var item in logAllList)
+                {
+                    logDtoAllList.Add(_mapper.Map<LogDto>(item));
+                }
+
+                response.Process = "Loglar";
+                response.Message = "Bütün loglar getirildi.";
                 response.Data = logDtoAllList;
             }
             catch (Exception e)
             {
-                response.Message = "Error occured.";
-                response.Success = false;
-                response.Data = logDtoAllList;
+                response.Process = "Loglar";
+                response.Message = "Logları getirirken servis katmanında bir hata oluştu.";
+                response.Error = true;
+                response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
             }
             return response;
@@ -56,74 +57,61 @@ namespace tasinmaz.API.Services.Concrete
         {
             ServiceResponse<List<LogDto>> response = new ServiceResponse<List<LogDto>>();
 
-            var logAllList = await _logRepository.GetAllAsync();
-            var logDtoAllList = new List<LogDto>();
-
-            var logList = await _logRepository.GetAllAsync(x =>
-                (x.KullaniciIp.Contains(logDto.KullaniciIp, StringComparison.InvariantCultureIgnoreCase) || logDto.KullaniciIp == null) &&
-                (x.Tarih.ToString().Contains(logDto.Tarih.ToString(), StringComparison.InvariantCultureIgnoreCase) || logDto.Tarih == null) &&
-                (x.Durum.Contains(logDto.Durum, StringComparison.InvariantCultureIgnoreCase) || logDto.Durum == null) && 
-                (x.Islem.Contains(logDto.Islem, StringComparison.InvariantCultureIgnoreCase) || logDto.Islem == null) &&
-                (x.Aciklama.Contains(logDto.Aciklama, StringComparison.InvariantCultureIgnoreCase) || logDto.Aciklama == null) && 
-                (x.Kullanici.Id.ToString().Contains(logDto.KullaniciId.ToString(), StringComparison.InvariantCultureIgnoreCase) || logDto.KullaniciId == default));
-
-            foreach (var item in logAllList)
-            {
-                logDtoAllList.Add(_mapper.Map<LogDto>(item));
-            }
-
             try
             {
-                if (logDto == null)
-                {
-                    response.Message = "No Parameter";
-                    response.Success = false;
-                    response.Data = logDtoAllList;
-                    return response;
-                }
+                var logList = await _logRepository.GetAllAsync(x =>
+                    (x.KullaniciIp.Contains(logDto.KullaniciIp, StringComparison.InvariantCultureIgnoreCase) || logDto.KullaniciIp == null) &&
+                    (x.Tarih.ToString().Contains(logDto.Tarih.ToString(), StringComparison.InvariantCultureIgnoreCase) || logDto.Tarih == null) &&
+                    (x.Durum.Contains(logDto.Durum, StringComparison.InvariantCultureIgnoreCase) || logDto.Durum == null) &&
+                    (x.Islem.Contains(logDto.Islem, StringComparison.InvariantCultureIgnoreCase) || logDto.Islem == null) &&
+                    (x.Aciklama.Contains(logDto.Aciklama, StringComparison.InvariantCultureIgnoreCase) || logDto.Aciklama == null) &&
+                    (x.Kullanici.Id.ToString().Contains(logDto.KullaniciId.ToString(), StringComparison.InvariantCultureIgnoreCase) || logDto.KullaniciId == default));
 
                 if (logList == null)
                 {
-                    response.Message = "Parameters does not match with the database.";
-                    response.Success = false;
-                    response.Data = logDtoAllList;
+                    response.Process = "Loglar";
+                    response.Message = "Arama parametreleri veri tabanıyla eşleşmedi.";
+                    response.Warning = true;
+                    response.Data = null;
                     return response;
                 }
-                response.Message = "Logs searched.";
-                response.Success = false;
+                response.Process = "Loglar";
+                response.Message = "Loglar başarıyla filtrelendi.";
                 response.Data = _mapper.Map<List<LogDto>>(logList);
             }
             catch (Exception e)
             {
-                response.Message = "Error occured.";
-                response.Success = false;
-                response.Data = logDtoAllList;
+                response.Process = "Loglar";
+                response.Message = "Logları filtrelerken servis katmanında bir hata oluştu.";
+                response.Error = true;
+                response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
             }
             return response;
         }
 
-        public async Task<ServiceResponse<LogDto>> AddAsync(Log log)
+        public async Task<ServiceResponse<LogDto>> AddLogAsync(Log log)
         {
             ServiceResponse<LogDto> response = new ServiceResponse<LogDto>();
             try
             {
-                
                 if (!await _logRepository.AddAsync(log))
                 {
-                    response.Message = "Repository error.";
-                    response.Success = false;
+                    response.Process = "Loglar";
+                    response.Message = "Log veri tabanına eklenirken bir hata oluştu.";
+                    response.Error = true;
                     response.Data = null;
                     return response;
                 }
-                response.Success = true;
+                response.Process = "Loglar";
+                response.Message = "Log başarıyla eklendi.";
                 response.Data = _mapper.Map<LogDto>(log);
-                response.Message = "Log created";
             }
             catch (Exception e)
             {
-                response.Message = "Error occured.";
-                response.Success = false;
+                response.Process = "Loglar";
+                response.Message = "Log servis katmanında eklenirken bir hata oluştu.";
+                response.Error = true;
                 response.Data = null;
                 response.ErrorMessages = new List<string> { Convert.ToString(e.Message) };
             }

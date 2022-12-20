@@ -24,8 +24,7 @@ namespace tasinmaz.API.Data
 
         public async Task<bool> AddAsync(Log log)
         {
-            var addedEntity = await _context.Loglar.AddAsync(log);
-            addedEntity.State = EntityState.Added;
+            await _context.Loglar.AddAsync(log);
             return await SaveChanges();
         }
 

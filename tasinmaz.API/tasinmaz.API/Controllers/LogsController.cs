@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using tasinmaz.API.Dtos.Log;
 using tasinmaz.API.Dtos.Tasinmaz;
+using tasinmaz.API.Helpers;
 using tasinmaz.API.Services.Abstract;
 
 namespace tasinmaz.API.Controllers
@@ -17,17 +20,22 @@ namespace tasinmaz.API.Controllers
         {
             _logService = logService;
         }
+
         [HttpGet]
+        //[Authorize(Policy = Policies.Admin)]
         public async Task<ActionResult> GetAll()
         {
-            var loglar = await _logService.GetAllAsync();
-            return Ok(loglar); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            var allLoglar = await _logService.GetAllAsync();
+
+            return Ok(allLoglar);
         }
         [HttpGet("search")]
-        public async Task<ActionResult> GetBySearch([FromBody] LogDto logDto = null)
+        //[Authorize(Policy = Policies.Admin)]
+        public async Task<ActionResult> GetBySearch([FromBody] LogDto logDto)
         {
-            var loglar = await _logService.GetLoglarAsync(logDto);
-            return Ok(loglar); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            var searchLoglar = await _logService.GetLoglarAsync(logDto);
+
+            return Ok(searchLoglar);
         }
     }
 }

@@ -5,13 +5,13 @@
       <h1 class="h3 mb-3 font-weight-normal">Yönetim Portalı</h1>
     </div>
     <div class="mb-4 row">
-      <form class="form-signin w-100 m-auto" #loginForm="ngForm" (ngSubmit)="login()">
+      <form [formGroup]="loginForm" class="form-signin w-100 m-auto" (ngSubmit)="login()">
         <div class="form-floating">
-          <input type="email" class="form-control" id="email" name="email" [(ngModel)]="loginKullanici.email" placeholder="E-Mail" autofocus required />
+          <input type="email" class="form-control" id="email" formControlName="email" name="email" placeholder="E-Mail" autofocus required />
           <label for="email">E-Mail</label>
         </div>
         <div class="form-floating">
-          <input type="password" id="password" name="password" [(ngModel)]="loginKullanici.password" class="form-control" placeholder="Şifre" required />
+          <input type="password" id="password" name="password" formControlName="password" class="form-control" placeholder="Şifre" required />
           <label for="inputPassword">Şifre</label>
         </div>
         <button class="btn btn-lg btn-primary btn-block" [disabled]="loginForm.invalid" type="submit">Giriş Yap</button>

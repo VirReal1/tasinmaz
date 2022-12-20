@@ -8,10 +8,10 @@ namespace tasinmaz.API.Services.Abstract
 {
     public interface ITasinmazService
     {
-        Task<ServiceResponse<List<TasinmazDto>>> GetAllAsync();
+        Task<ServiceResponse<List<TasinmazDto>>> GetAllAsync(int kullaniciId);
         Task<ServiceResponse<List<TasinmazDto>>> GetTasinmazlarAsync(TasinmazDto tasinmazDto);
         Task<ServiceResponse<TasinmazDto>> AddTasinmazAsync(TasinmazDto tasinmazDto);
         Task<ServiceResponse<TasinmazDto>> UpdateTasinmazAsync(TasinmazDto tasinmazDto);
-        Task<ServiceResponse<TasinmazDto>> DeleteTasinmazAsync(TasinmazDto tasinmazDto);
+        Task<ServiceResponse<TasinmazDto>> DeleteTasinmazAsync(int logKullaniciId, int kullaniciId);
     }
 }

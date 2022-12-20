@@ -10,7 +10,7 @@ namespace tasinmaz.API.Services.Abstract
     {
         Task<ServiceResponse<List<LogDto>>> GetAllAsync();
         Task<ServiceResponse<List<LogDto>>> GetLoglarAsync(LogDto logDto);
-        Task<ServiceResponse<LogDto>> AddAsync(Log log);
+        Task<ServiceResponse<LogDto>> AddLogAsync(Log log);
 
     }
 }

@@ -7,12 +7,12 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using tasinmaz.API.Dtos;
 using tasinmaz.API.Models;
-using tasinmaz.API.Models.Concrete;
 
 namespace tasinmaz.API.Data
 {
@@ -21,12 +21,14 @@ namespace tasinmaz.API.Data
         DataContext _context;
         IMapper _mapper;
         IConfiguration _configuration;
+        IHttpContextAccessor _httpContextAccessor;
 
-        public UserRepository(DataContext context, IMapper mapper, IConfiguration configuration)
+        public UserRepository(DataContext context, IMapper mapper, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _mapper = mapper;
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
         public async Task<Kullanici> Get(Expression<Func<Kullanici, bool>> filter)
         {
@@ -42,10 +44,10 @@ namespace tasinmaz.API.Data
             return await _context.Kullanicilar.AnyAsync(filter);
         }
 
-        public async Task<KullaniciToken> LoginUserAsync(KullaniciForLoginDto kullaniciForLoginDto)
+        public async Task<string[]> LoginUserAsync(KullaniciForLoginDto kullaniciForLoginDto)
         {
             var kullanici = await _context.Kullanicilar.FirstOrDefaultAsync(x => x.Email == kullaniciForLoginDto.Email);
-            
+
             if (kullanici == null)
             {
                 return null;
@@ -64,48 +66,47 @@ namespace tasinmaz.API.Data
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, kullanici.Id.ToString()),
-                    new Claim(ClaimTypes.Email, kullanici.Email)
+                    new Claim(ClaimTypes.Email, kullanici.Email),
+                    new Claim(ClaimTypes.Role, kullanici.UserRole)
                 }),
                 Expires = DateTime.Now.AddHours(2),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature),
+                Issuer = _configuration["Jwt: Issuer"],
+                Audience = _configuration["Jwt: Audience"]
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
-            KullaniciToken kullaniciToken = new KullaniciToken
-            {
-                Token = tokenString, AdminMi = kullanici.AdminMi, Id = kullanici.Id
-            };
 
-            return kullaniciToken;
+            return new[] { tokenString, kullanici.Id.ToString() };
         }
 
-        public async Task<bool> AddAsync(KullaniciForAddUpdateDto kullaniciForAddUpdateDto)
+        public async Task<bool> AddAsync(KullaniciForAddDto kullaniciForAddDto)
         {
             byte[] passwordHash, passwordSalt;
-            CreatePasswordHash(kullaniciForAddUpdateDto.Password, out passwordHash, out passwordSalt);
-            kullaniciForAddUpdateDto.PasswordHash = passwordHash;
-            kullaniciForAddUpdateDto.PasswordSalt = passwordSalt;
-            var addedUser = await _context.Kullanicilar.AddAsync(_mapper.Map<Kullanici>(kullaniciForAddUpdateDto));
-            addedUser.State = EntityState.Added;
+            CreatePasswordHash(kullaniciForAddDto.Password, out passwordHash, out passwordSalt);
+            kullaniciForAddDto.PasswordHash = passwordHash;
+            kullaniciForAddDto.PasswordSalt = passwordSalt;
+
+            await _context.Kullanicilar.AddAsync(_mapper.Map<Kullanici>(kullaniciForAddDto));
             return await SaveChanges();
         }
-        public async Task<bool> UpdateAsync(KullaniciForAddUpdateDto kullaniciForAddUpdateDto)
+        public async Task<bool> UpdateAsync(KullaniciForUpdateDto kullaniciForUpdateDto)
         {
             byte[] passwordHash, passwordSalt;
-            CreatePasswordHash(kullaniciForAddUpdateDto.Password, out passwordHash, out passwordSalt);
-            kullaniciForAddUpdateDto.PasswordHash = passwordHash;
-            kullaniciForAddUpdateDto.PasswordSalt = passwordSalt;
+            CreatePasswordHash(kullaniciForUpdateDto.Password, out passwordHash, out passwordSalt);
+            kullaniciForUpdateDto.PasswordHash = passwordHash;
+            kullaniciForUpdateDto.PasswordSalt = passwordSalt;
+
             _context.ChangeTracker.Clear();
-            var updatedUser = _context.Kullanicilar.Update(_mapper.Map<Kullanici>(kullaniciForAddUpdateDto));
-            updatedUser.State = EntityState.Modified;
+            _context.Kullanicilar.Update(_mapper.Map<Kullanici>(kullaniciForUpdateDto));
             return await SaveChanges();
         }
 
-        public async Task<bool> DeleteAsync(Kullanici kullanici)
+        public async Task<bool> DeleteAsync(Expression<Func<Kullanici, bool>> filter)
         {
-            var deletedUser = _context.Kullanicilar.Remove(kullanici);
-            deletedUser.State = EntityState.Deleted;
+            var kullanici = _context.Kullanicilar.FirstOrDefault(filter);
+            _context.Kullanicilar.Remove(kullanici);
             return await SaveChanges();
         }
 

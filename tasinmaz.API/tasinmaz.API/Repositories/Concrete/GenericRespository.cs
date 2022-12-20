@@ -15,7 +15,7 @@ namespace tasinmaz.API.Data
         {
             _context = context;
         }
-        public async Task<T> Get(Expression<Func<T, bool>> filter)
+        public async Task<T> GetAsync(Expression<Func<T, bool>> filter)
         {
             return await _context.Set<T>().FirstOrDefaultAsync(filter);
         }
@@ -25,30 +25,28 @@ namespace tasinmaz.API.Data
             return filter == null ? await _context.Set<T>().ToListAsync() : await _context.Set<T>().Where(filter).ToListAsync();
         }
 
-        public async Task<bool> Exists(Expression<Func<T, bool>> filter)
+        public async Task<bool> ExistsAsync(Expression<Func<T, bool>> filter)
         {
             return await _context.Set<T>().AnyAsync(filter);
         }
 
         public async Task<bool> AddAsync(T entity)
         {
-            var addedEntity = await _context.Set<T>().AddAsync(entity);
-            addedEntity.State = EntityState.Added;
+            await _context.Set<T>().AddAsync(entity);
             return await SaveChanges();
         }
 
         public async Task<bool> UpdateAsync(T entity)
         {
             _context.ChangeTracker.Clear();
-            var updatedEntity = _context.Set<T>().Update(entity);
-            updatedEntity.State = EntityState.Modified;
+            _context.Set<T>().Update(entity);
             return await SaveChanges();
         }
 
-        public async Task<bool> DeleteAsync(T entity)
+        public async Task<bool> DeleteAsync(Expression<Func<T, bool>> filter)
         {
-            var deletedEntity = _context.Set<T>().Remove(entity);
-            deletedEntity.State = EntityState.Deleted;
+            var entity = _context.Set<T>().FirstOrDefault(filter);
+            _context.Set<T>().Remove(entity);
             return await SaveChanges();
         }
 

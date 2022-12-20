@@ -1,0 +1,49 @@
+<div *ngIf="!editPressed; else editComponent" class="container grid">
+  <div class="row mt-5">
+    <div class="table-responsive">
+      <form [formGroup]="searchForm" (ngSubmit)="searchKullanicilar()">
+        <table class="table mt-3 table-hover table-bordered table-responsive">
+          <thead class="borderless text-center">
+            <tr class="borderless-row form-group">
+              <th scope="col"><button type="submit" class="btn btn-md btn-primary btn-block">Ara</button></th>
+              <th scope="col"><input type="number" formControlName="id" class="form-control" id="id" placeholder="#" /></th>
+              <th scope="col"><input type="text" formControlName="ad" class="form-control" id="ad" placeholder="Ad" /></th>
+              <th scope="col"><input type="text" formControlName="soyad" class="form-control" id="soyad" placeholder="Soyad" /></th>
+              <th scope="col"><input type="email" formControlName="email" class="form-control" id="email" placeholder="E-Mail" /></th>
+              <th scope="col"><input type="text" formControlName="userRole" class="form-control" id="userRole" placeholder="Kullanıcı Yetkisi" /></th>
+            </tr>
+          </thead>
+          <thead class="text-center">
+            <tr>
+              <th scope="col">Seçenekler</th>
+              <th scope="col">#</th>
+              <th scope="col">Adı</th>
+              <th scope="col">Soyadı</th>
+              <th scope="col">E-Mail</th>
+              <th scope="col">Kullanıcı Yetkisi</th>
+            </tr>
+          </thead>
+          <tbody class="text-center">
+            <tr *ngFor="let kullanici of kullanicilar">
+              <th class="text-center">
+                <i class="btn fas fa-edit" aria-hidden="true" (click)="editKullanici(kullanici)"></i>
+                <i class="btn fas fa-trash" style="padding-left: 0.5rem;" aria-hidden="true" (click)="deleteKullanici(kullanici)"></i>
+              </th>
+              <th scope="row">{{kullanici.id}}</th>
+              <td>{{kullanici.ad}}</td>
+              <td>{{kullanici.soyad}}</td>
+              <td>{{kullanici.email}}</td>
+              <td>{{kullanici.userRole}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </div>
+  </div>
+  <div class="row mt-1">
+    <a class="btn btn-success" type="button" style="margin-left: 1rem; max-width: fit-content;" (click)="editKullanici(null)">Kullanıcı Ekle</a>
+  </div>
+</div>
+<ng-template #editComponent>
+  <app-user-edit [editParameters]="kullaniciEditData" (toKullaniciPage)="toKullaniciPage($event)" (goBack)="goBack()"></app-user-edit>
+</ng-template>

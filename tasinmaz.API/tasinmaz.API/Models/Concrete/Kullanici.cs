@@ -13,7 +13,7 @@ namespace tasinmaz.API.Models
         public string Ad { get; set; }
         public string Soyad { get; set; }
         public string Email { get; set; }
-        public bool AdminMi { get; set; }
+        public string UserRole { get; set; }
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
     }

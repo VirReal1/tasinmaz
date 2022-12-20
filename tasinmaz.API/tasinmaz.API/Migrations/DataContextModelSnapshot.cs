@@ -78,7 +78,7 @@ namespace tasinmaz.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("IlId")
+                    b.Property<int>("IlId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -98,9 +98,6 @@ namespace tasinmaz.API.Migrations
                     b.Property<string>("Ad")
                         .HasColumnType("text");
 
-                    b.Property<bool>("AdminMi")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Email")
                         .HasColumnType("text");
 
@@ -111,6 +108,9 @@ namespace tasinmaz.API.Migrations
                         .HasColumnType("bytea");
 
                     b.Property<string>("Soyad")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserRole")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -129,7 +129,7 @@ namespace tasinmaz.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("IlceId")
+                    b.Property<int>("IlceId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -196,7 +196,9 @@ namespace tasinmaz.API.Migrations
                 {
                     b.HasOne("tasinmaz.API.Models.Il", "Il")
                         .WithMany()
-                        .HasForeignKey("IlId");
+                        .HasForeignKey("IlId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Il");
                 });
@@ -205,7 +207,9 @@ namespace tasinmaz.API.Migrations
                 {
                     b.HasOne("tasinmaz.API.Models.Ilce", "Ilce")
                         .WithMany()
-                        .HasForeignKey("IlceId");
+                        .HasForeignKey("IlceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Ilce");
                 });
